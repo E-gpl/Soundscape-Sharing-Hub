@@ -1,13 +1,74 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import MusicPlayer from '@/components/MusicPlayer';
 import ArtistCard from '@/components/ArtistCard';
 import TrackCard from '@/components/TrackCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useQuery } from '@tanstack/react-query';
+import { hasValidSupabaseCredentials, supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
-// Mock data
+// 从 Supabase 获取艺术家数据
+const fetchArtists = async () => {
+  try {
+    if (!hasValidSupabaseCredentials()) {
+      // 如果没有有效的凭证，返回模拟数据
+      return ARTISTS;
+    }
+    
+    const { data, error } = await supabase
+      .from('artists')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(8);
+      
+    if (error) throw error;
+    return data.length > 0 ? data : ARTISTS; // 如果没有数据，回退到模拟数据
+  } catch (error) {
+    console.error('Error fetching artists:', error);
+    return ARTISTS; // 出错时回退到模拟数据
+  }
+};
+
+// 从 Supabase 获取音轨数据
+const fetchTracks = async () => {
+  try {
+    if (!hasValidSupabaseCredentials()) {
+      // 如果没有有效的凭证，返回模拟数据
+      return TRACKS;
+    }
+    
+    const { data, error } = await supabase
+      .from('tracks')
+      .select('*, artists(name)')
+      .order('play_count', { ascending: false })
+      .limit(10);
+      
+    if (error) throw error;
+    
+    // 将 Supabase 数据格式转换为应用需要的格式
+    const formattedTracks = data.length > 0 
+      ? data.map(track => ({
+          id: track.id,
+          title: track.title,
+          artist: track.artists?.name || 'Unknown Artist',
+          artistId: track.artist_id,
+          cover: track.cover,
+          duration: track.duration,
+          playCount: track.play_count
+        }))
+      : TRACKS;
+      
+    return formattedTracks;
+  } catch (error) {
+    console.error('Error fetching tracks:', error);
+    return TRACKS; // 出错时回退到模拟数据
+  }
+};
+
+// 模拟数据 - 当 Supabase 连接不可用时使用
 const ARTISTS = [
   {
     id: '1',
@@ -169,6 +230,27 @@ const Browse = () => {
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   
+  // 使用 React Query 获取艺术家数据
+  const { data: artists = [], isLoading: artistsLoading } = useQuery({
+    queryKey: ['artists'],
+    queryFn: fetchArtists
+  });
+  
+  // 使用 React Query 获取音轨数据
+  const { data: tracks = [], isLoading: tracksLoading } = useQuery({
+    queryKey: ['tracks', selectedGenre],
+    queryFn: fetchTracks
+  });
+  
+  // 当 Supabase 凭证无效时显示警告
+  useEffect(() => {
+    if (!hasValidSupabaseCredentials()) {
+      toast.warning('Supabase credentials not set. Using demo data.', {
+        duration: 5000,
+      });
+    }
+  }, []);
+  
   const handlePlay = (trackId: string) => {
     setPlayingTrackId(trackId);
   };
@@ -213,15 +295,29 @@ const Browse = () => {
             
             <TabsContent value="tracks" className="space-y-8">
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {TRACKS.map(track => (
-                  <TrackCard 
-                    key={track.id} 
-                    track={track}
-                    isCurrentlyPlaying={playingTrackId === track.id}
-                    onPlay={() => handlePlay(track.id)}
-                    onPause={handlePause}
-                  />
-                ))}
+                {tracksLoading ? (
+                  Array(10).fill(0).map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="bg-harmonic-200 dark:bg-harmonic-700 rounded-md aspect-square mb-2"></div>
+                      <div className="h-4 bg-harmonic-200 dark:bg-harmonic-700 rounded w-3/4 mb-1"></div>
+                      <div className="h-3 bg-harmonic-200 dark:bg-harmonic-700 rounded w-1/2"></div>
+                    </div>
+                  ))
+                ) : tracks.length > 0 ? (
+                  tracks.map(track => (
+                    <TrackCard 
+                      key={track.id} 
+                      track={track}
+                      isCurrentlyPlaying={playingTrackId === track.id}
+                      onPlay={() => handlePlay(track.id)}
+                      onPause={handlePause}
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-harmonic-500">No tracks found. Try a different genre.</p>
+                  </div>
+                )}
               </div>
               
               <div className="text-center pt-4">
@@ -231,9 +327,23 @@ const Browse = () => {
             
             <TabsContent value="artists" className="space-y-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {ARTISTS.map(artist => (
-                  <ArtistCard key={artist.id} artist={artist} />
-                ))}
+                {artistsLoading ? (
+                  Array(8).fill(0).map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="bg-harmonic-200 dark:bg-harmonic-700 rounded-md aspect-square mb-2"></div>
+                      <div className="h-4 bg-harmonic-200 dark:bg-harmonic-700 rounded w-3/4 mb-1"></div>
+                      <div className="h-3 bg-harmonic-200 dark:bg-harmonic-700 rounded w-1/2"></div>
+                    </div>
+                  ))
+                ) : artists.length > 0 ? (
+                  artists.map(artist => (
+                    <ArtistCard key={artist.id} artist={artist} />
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-harmonic-500">No artists found.</p>
+                  </div>
+                )}
               </div>
               
               <div className="text-center pt-4">
@@ -248,9 +358,9 @@ const Browse = () => {
         track={playingTrackId 
           ? {
               id: playingTrackId,
-              title: TRACKS.find(t => t.id === playingTrackId)?.title || '',
-              artist: TRACKS.find(t => t.id === playingTrackId)?.artist || '',
-              cover: TRACKS.find(t => t.id === playingTrackId)?.cover || '',
+              title: tracks.find(t => t.id === playingTrackId)?.title || '',
+              artist: tracks.find(t => t.id === playingTrackId)?.artist || '',
+              cover: tracks.find(t => t.id === playingTrackId)?.cover || '',
               audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
             }
           : undefined
