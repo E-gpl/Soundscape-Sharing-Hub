@@ -4,6 +4,7 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -27,6 +28,16 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.75rem;
+    
+    /* Sidebar variables */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 10% 3.9%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 240 5.9% 10%;
   }
 
   .dark {
@@ -49,6 +60,16 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    
+    /* Sidebar dark mode variables */
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 240 4.9% 83.9%;
   }
 }
 
@@ -60,6 +81,7 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
   
   body {
@@ -74,11 +96,15 @@
 /* Custom utility classes */
 @layer components {
   .glass-morphism {
-    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-sm;
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-sm;
+  }
+  
+  .glass-card {
+    @apply bg-white/80 dark:bg-harmonic-800/80 backdrop-blur-md border border-harmonic-200/50 dark:border-harmonic-700/50 shadow-sm rounded-xl transition-all duration-300 hover:shadow-md;
   }
   
   .navbar-blur {
-    @apply backdrop-blur-md bg-harmonic-100/70 dark:bg-harmonic-900/70 border-b border-harmonic-200 dark:border-harmonic-700/50 shadow-sm;
+    @apply backdrop-blur-md bg-harmonic-100/80 dark:bg-harmonic-900/80 border-b border-harmonic-200 dark:border-harmonic-700/50 shadow-sm;
   }
   
   .hover-scale {
@@ -90,7 +116,15 @@
   }
   
   .button-gradient {
-    @apply bg-gradient-to-r from-accent1 to-accent2 text-white font-medium;
+    @apply bg-gradient-to-r from-accent1 to-accent2 text-white font-medium hover:opacity-90 transition-opacity;
+  }
+  
+  .soft-shadow {
+    @apply shadow-[0_8px_30px_rgb(0,0,0,0.05)];
+  }
+  
+  .heading-gradient {
+    @apply bg-gradient-to-r from-accent1 via-accent2 to-accent1 bg-clip-text text-transparent;
   }
   
   .link-hover {
@@ -100,4 +134,15 @@
   .text-balance {
     text-wrap: balance;
   }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
+
+/* Remove unused App.css styles since we've integrated them */
