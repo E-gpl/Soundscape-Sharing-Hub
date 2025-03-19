@@ -4,6 +4,10 @@
 
 MusicArtistry is a sophisticated web application designed specifically for musicians and artists to upload, manage, and showcase their musical creations. The platform provides a streamlined interface for artists to share their work with audiences worldwide, while offering robust playback functionality for listeners to enjoy music directly through their browsers.
 
+## Live Website 🔗
+
+Experience the platform now: https://soundscape-sharing-hub.lovable.app/
+
 ## Key Features
 
 - **Artist Profiles**: Create personalized artist profiles with biographies and portfolio information
