@@ -10,7 +10,17 @@ const FeaturedArtists = () => {
   const navigate = useNavigate();
   const { data: artists = [], isLoading, isError } = useArtists();
   
-  const featuredArtists = artists.slice(0, 4);
+  // Add default values for tracks and followers if they're missing
+  const featuredArtists = artists.slice(0, 4).map(artist => ({
+    ...artist,
+    tracks: artist.tracks || 0,
+    followers: artist.followers || 0
+  }));
+  
+  // Don't render anything if there are no artists to display
+  if (featuredArtists.length === 0 && !isLoading && !isError) {
+    return null;
+  }
   
   return (
     <section className="py-12 animate-fade-in">

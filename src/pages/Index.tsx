@@ -1,8 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
-import FeaturedArtists from '@/components/FeaturedArtists';
-import NewReleases from '@/components/NewReleases';
 import MusicPlayer from '@/components/MusicPlayer';
 import { Button } from '@/components/ui/button';
 import { Play, ArrowRight, Music, Headphones, Users, Sparkles } from 'lucide-react';
@@ -100,9 +98,6 @@ const Index = () => {
       
       {/* Content Sections */}
       <div className="bg-gradient-to-b from-harmonic-100 to-white dark:from-harmonic-900 dark:to-harmonic-800">
-        <FeaturedArtists />
-        <NewReleases />
-        
         {/* Stats Section */}
         <section className="py-16 relative overflow-hidden">
           <div className="absolute inset-0 z-0 opacity-50">
