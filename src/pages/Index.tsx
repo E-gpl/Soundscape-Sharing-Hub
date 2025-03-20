@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import MusicPlayer from '@/components/MusicPlayer';
 import { Button } from '@/components/ui/button';
-import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info } from 'lucide-react';
+import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart, Globe, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { checkSupabaseCredentials } from '@/lib/supabase';
@@ -44,17 +44,17 @@ const Index = () => {
         <div className="relative z-10 container px-4 md:px-6 text-center max-w-4xl animate-fade-in">
           <div className="inline-block px-3 py-1 mb-4 rounded-full bg-harmonic-200/50 dark:bg-harmonic-800/30 text-harmonic-700 dark:text-harmonic-300 text-sm font-medium backdrop-blur-sm">
             <Sparkles className="inline-block w-4 h-4 mr-2 text-accent1" />
-            发现独立音乐的世界
+            Discover the World of Independent Music
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6 text-balance">
-            音乐创作者的 <br />
-            <span className="heading-gradient">数字舞台</span>
+            A Digital Stage for <br />
+            <span className="heading-gradient">Music Creators</span>
           </h1>
           
           <p className="text-lg md:text-xl text-harmonic-600 dark:text-harmonic-300 mb-10 max-w-3xl mx-auto text-balance">
-            Harmonic 帮助独立音乐人向全世界分享他们的作品。
-            上传您的音乐，建立您的听众群，与欣赏您独特声音的听众建立联系。
+            Harmonic helps independent musicians share their work with the world.
+            Upload your music, build your audience, and connect with listeners who appreciate your unique sound.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -65,7 +65,7 @@ const Index = () => {
                 onClick={() => navigate('/upload')}
               >
                 <Mic2 className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                上传音乐
+                Upload Music
               </Button>
             ) : (
               <Button 
@@ -74,7 +74,7 @@ const Index = () => {
                 onClick={() => navigate('/browse')}
               >
                 <Play className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                开始聆听
+                Start Listening
               </Button>
             )}
             
@@ -85,7 +85,7 @@ const Index = () => {
                 className="bg-white/80 dark:bg-harmonic-900/80 backdrop-blur-sm hover:bg-white dark:hover:bg-harmonic-800 transition-all duration-300"
                 onClick={() => navigate('/profile')}
               >
-                查看我的个人资料
+                View My Profile
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             ) : (
@@ -95,7 +95,7 @@ const Index = () => {
                 className="bg-white/80 dark:bg-harmonic-900/80 backdrop-blur-sm hover:bg-white dark:hover:bg-harmonic-800 transition-all duration-300"
                 onClick={() => navigate('/sign-up')}
               >
-                创建账号
+                Create Account
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             )}
@@ -106,7 +106,7 @@ const Index = () => {
           scrolled ? 'opacity-0' : 'opacity-100'
         }`}>
           <div className="flex flex-col items-center animate-bounce">
-            <div className="text-sm text-harmonic-500 mb-2">向下滚动探索更多</div>
+            <div className="text-sm text-harmonic-500 mb-2">Scroll down to explore</div>
             <svg 
               width="24" 
               height="24" 
@@ -130,9 +130,9 @@ const Index = () => {
         <section className="py-16 relative">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">为什么选择 Harmonic？</h2>
+              <h2 className="text-3xl font-bold mb-4">Why Choose Harmonic?</h2>
               <p className="text-harmonic-600 dark:text-harmonic-300 max-w-2xl mx-auto">
-                我们提供创新工具，帮助音乐创作者在数字时代茁壮成长
+                We provide innovative tools to help music creators thrive in the digital age
               </p>
             </div>
             
@@ -141,9 +141,9 @@ const Index = () => {
                 <div className="bg-accent1/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Mic2 className="h-8 w-8 text-accent1" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">简易上传</h3>
+                <h3 className="text-xl font-semibold mb-3">Easy Uploads</h3>
                 <p className="text-harmonic-500">
-                  只需几步，即可将您的音乐作品上传到我们的平台，轻松分享您的艺术创作
+                  Upload your music to our platform in just a few steps, making it simple to share your artistic creations
                 </p>
               </div>
               
@@ -151,9 +151,9 @@ const Index = () => {
                 <div className="bg-accent2/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="h-8 w-8 text-accent2" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">建立听众</h3>
+                <h3 className="text-xl font-semibold mb-3">Build an Audience</h3>
                 <p className="text-harmonic-500">
-                  连接热爱您音乐的听众，创建忠实粉丝群体，扩大您的音乐影响力
+                  Connect with listeners who love your music, create a loyal fanbase, and expand your musical influence
                 </p>
               </div>
               
@@ -161,10 +161,58 @@ const Index = () => {
                 <div className="bg-blue-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Info className="h-8 w-8 text-blue-500" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">深入分析</h3>
+                <h3 className="text-xl font-semibold mb-3">Detailed Analytics</h3>
                 <p className="text-harmonic-500">
-                  获取详细的听众数据和播放统计，了解您的音乐在全球的影响力
+                  Get detailed listener data and play statistics to understand your music's impact around the world
                 </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Why Music Matters Section */}
+        <section className="py-16 relative">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col lg:flex-row items-center gap-12">
+              <div className="lg:w-1/2 order-2 lg:order-1">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 tracking-tight">Music Connects Us All</h2>
+                <p className="text-lg text-harmonic-600 dark:text-harmonic-300 mb-6">
+                  Music is a universal language that transcends borders, cultures, and backgrounds. Independent artists create authentic sounds that push boundaries and inspire listeners worldwide.
+                </p>
+                <p className="text-lg text-harmonic-600 dark:text-harmonic-300 mb-6">
+                  At Harmonic, we believe in the power of independent music to create meaningful connections and emotional experiences. Our platform is designed to amplify these voices.
+                </p>
+                <div className="flex flex-wrap gap-4 mt-8">
+                  <div className="flex items-center">
+                    <div className="bg-accent1/10 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                      <Heart className="h-5 w-5 text-accent1" />
+                    </div>
+                    <p className="font-medium">Support artists directly</p>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="bg-accent2/10 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                      <Globe className="h-5 w-5 text-accent2" />
+                    </div>
+                    <p className="font-medium">Global reach</p>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="bg-blue-500/10 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                      <Zap className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <p className="font-medium">Discover new sounds</p>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:w-1/2 order-1 lg:order-2">
+                <div className="relative">
+                  <div className="absolute -top-6 -left-6 w-64 h-64 bg-accent1/10 rounded-full filter blur-3xl animate-pulse-slow"></div>
+                  <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-accent2/10 rounded-full filter blur-3xl animate-pulse-slow animation-delay-2000"></div>
+                  <img 
+                    src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2070&auto=format&fit=crop" 
+                    alt="Person listening to music" 
+                    className="rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-auto"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -181,25 +229,25 @@ const Index = () => {
               <div className="glass-card p-6 text-center">
                 <Music className="h-10 w-10 mx-auto mb-4 text-accent1" />
                 <h3 className="text-4xl font-bold">10K+</h3>
-                <p className="text-harmonic-500">音乐人</p>
+                <p className="text-harmonic-500">Musicians</p>
               </div>
               
               <div className="glass-card p-6 text-center">
                 <Headphones className="h-10 w-10 mx-auto mb-4 text-accent2" />
                 <h3 className="text-4xl font-bold">50K+</h3>
-                <p className="text-harmonic-500">音乐作品</p>
+                <p className="text-harmonic-500">Tracks</p>
               </div>
               
               <div className="glass-card p-6 text-center">
                 <Users className="h-10 w-10 mx-auto mb-4 text-blue-500" />
                 <h3 className="text-4xl font-bold">1M+</h3>
-                <p className="text-harmonic-500">听众</p>
+                <p className="text-harmonic-500">Listeners</p>
               </div>
               
               <div className="glass-card p-6 text-center">
                 <Play className="h-10 w-10 mx-auto mb-4 text-purple-500" />
                 <h3 className="text-4xl font-bold">6M+</h3>
-                <p className="text-harmonic-500">播放次数</p>
+                <p className="text-harmonic-500">Plays</p>
               </div>
             </div>
           </div>
@@ -215,10 +263,10 @@ const Index = () => {
           
           <div className="relative z-10 container px-4 md:px-6 text-center">
             <div className="glass-card p-10 max-w-4xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">准备好分享您的音乐了吗？</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Ready to Share Your Music?</h2>
               <p className="text-lg text-harmonic-600 dark:text-harmonic-300 mb-8 max-w-2xl mx-auto">
-                加入成千上万在 Harmonic 上找到听众的独立音乐人。
-                今天开始上传您的音乐，与全球听众建立连接。
+                Join thousands of independent musicians who have found their audience on Harmonic.
+                Start uploading your music and connect with listeners around the world today.
               </p>
               
               <Button 
@@ -226,7 +274,7 @@ const Index = () => {
                 className="button-gradient shadow-lg shadow-accent1/20"
                 onClick={() => navigate('/sign-up')}
               >
-                创建账号
+                Create Account
               </Button>
             </div>
           </div>
@@ -238,21 +286,21 @@ const Index = () => {
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-6 md:mb-0">
                 <h2 className="text-2xl font-bold heading-gradient mb-2">Harmonic</h2>
-                <p className="text-sm text-harmonic-500">© 2023 Harmonic. 保留所有权利。</p>
+                <p className="text-sm text-harmonic-500">© 2023 Harmonic. All rights reserved.</p>
               </div>
               
               <div className="flex flex-wrap justify-center gap-6">
                 <a href="#" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
-                  条款
+                  Terms
                 </a>
                 <a href="#" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
-                  隐私
+                  Privacy
                 </a>
                 <a href="#" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
-                  帮助
+                  Help
                 </a>
                 <a href="#" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
-                  联系
+                  Contact
                 </a>
               </div>
             </div>

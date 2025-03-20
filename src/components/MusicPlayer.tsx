@@ -48,7 +48,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
         
         audioRef.current.addEventListener('error', (e) => {
           console.error('Audio loading error:', e);
-          toast.error('无法加载音频文件');
+          toast.error('Unable to load audio file');
           setIsVisible(false);
         });
       }
@@ -63,7 +63,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
 
   const togglePlayPause = () => {
     if (!track || !track.audioUrl) {
-      toast.error('没有可播放的音频');
+      toast.error('No audio available to play');
       return;
     }
     
@@ -77,7 +77,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
       if (playPromise) {
         playPromise.catch(error => {
           console.error('Playback error:', error);
-          toast.error('无法播放音频');
+          toast.error('Unable to play audio');
         });
       }
       animationRef.current = requestAnimationFrame(updateProgress);
