@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import MusicPlayer from '@/components/MusicPlayer';
 import TrackCard from '@/components/TrackCard';
@@ -17,64 +17,44 @@ import {
   Globe, 
   Save,
   UploadCloud,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
-
-// Mock data
-const USER = {
-  id: 'user1',
-  name: 'Alex Morgan',
-  username: 'alexmorgan',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2064&auto=format&fit=crop',
-  cover: 'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=2074&auto=format&fit=crop',
-  bio: 'Electronic music producer and DJ based in New York City. Creating ambient and melodic techno with organic elements.',
-  location: 'New York, NY',
-  website: 'https://alexmorgan.music',
-  followers: 2340,
-  following: 187
-};
-
-const USER_TRACKS = [
-  {
-    id: '1',
-    title: 'Urban Dreams',
-    artist: USER.name,
-    artistId: USER.id,
-    cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop',
-    duration: 258,
-    playCount: 15800
-  },
-  {
-    id: '2',
-    title: 'Midnight Echo',
-    artist: USER.name,
-    artistId: USER.id,
-    cover: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop',
-    duration: 197,
-    playCount: 9300
-  },
-  {
-    id: '3',
-    title: 'City Lights',
-    artist: USER.name,
-    artistId: USER.id,
-    cover: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop',
-    duration: 225,
-    playCount: 12400
-  }
-];
+import { useAuth } from '@/contexts/AuthContext';
+import { useUserTracks } from '@/services/api';
 
 const Profile = () => {
+  const { user, isAuthenticated, isLoading, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
   
+  // Redirect if not authenticated
+  if (!isLoading && !isAuthenticated) {
+    return <Navigate to="/sign-in" replace />;
+  }
+  
+  // Fetch user tracks
+  const { data: userTracks = [], isLoading: isLoadingTracks } = useUserTracks(user?.id);
+  
   // Profile state
-  const [name, setName] = useState(USER.name);
-  const [username, setUsername] = useState(USER.username);
-  const [bio, setBio] = useState(USER.bio);
-  const [location, setLocation] = useState(USER.location);
-  const [website, setWebsite] = useState(USER.website);
+  const [name, setName] = useState(user?.name || '');
+  const [username, setUsername] = useState(user?.username || '');
+  const [bio, setBio] = useState(user?.bio || '');
+  const [location, setLocation] = useState(user?.location || '');
+  const [website, setWebsite] = useState(user?.website || '');
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Update local state when user data changes
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setUsername(user.username || '');
+      setBio(user.bio || '');
+      setLocation(user.location || '');
+      setWebsite(user.website || '');
+    }
+  }, [user]);
   
   const handlePlay = (trackId: string) => {
     setPlayingTrackId(trackId);
@@ -84,17 +64,43 @@ const Profile = () => {
     setPlayingTrackId(null);
   };
   
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     // Validate
     if (!name.trim() || !username.trim()) {
       toast.error('Name and username are required');
       return;
     }
     
-    // Simulate API call
-    toast.success('Profile updated successfully!');
-    setIsEditing(false);
+    setIsSaving(true);
+    
+    try {
+      const success = await updateProfile({
+        name,
+        username,
+        bio,
+        location,
+        website
+      });
+      
+      if (success) {
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setIsSaving(false);
+    }
   };
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-harmonic-500" />
+        <p className="mt-4 text-harmonic-500">Loading profile...</p>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -104,8 +110,8 @@ const Profile = () => {
         {/* Cover Image */}
         <div className="relative h-64 md:h-80 w-full">
           <img 
-            src={USER.cover} 
-            alt={`${USER.name} cover`}
+            src={user?.cover || 'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=2074&auto=format&fit=crop'} 
+            alt={`${user?.name} cover`}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
@@ -122,8 +128,8 @@ const Profile = () => {
           <div className="flex flex-col md:flex-row gap-6 mb-8">
             <div className="relative">
               <img 
-                src={USER.avatar} 
-                alt={USER.name}
+                src={user?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User')} 
+                alt={user?.name || 'User'}
                 className="h-40 w-40 rounded-lg object-cover shadow-lg"
               />
               
@@ -199,9 +205,22 @@ const Profile = () => {
                   </div>
                   
                   <div className="flex space-x-3">
-                    <Button onClick={handleSaveProfile} className="button-gradient">
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Profile
+                    <Button 
+                      onClick={handleSaveProfile} 
+                      className="button-gradient"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Save Profile
+                        </>
+                      )}
                     </Button>
                     
                     <Button variant="outline" onClick={() => setIsEditing(false)}>
@@ -214,8 +233,8 @@ const Profile = () => {
                   <div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h1 className="text-3xl font-bold">{name}</h1>
-                        <p className="text-harmonic-500">@{username}</p>
+                        <h1 className="text-3xl font-bold">{user?.name || 'User'}</h1>
+                        <p className="text-harmonic-500">@{user?.username || 'user'}</p>
                       </div>
                       
                       <Button variant="outline" onClick={() => setIsEditing(true)}>
@@ -225,43 +244,34 @@ const Profile = () => {
                     </div>
                   </div>
                   
-                  <p className="text-sm text-harmonic-600 dark:text-harmonic-300 max-w-2xl">
-                    {bio}
-                  </p>
+                  {user?.bio && (
+                    <p className="text-sm text-harmonic-600 dark:text-harmonic-300 max-w-2xl">
+                      {user.bio}
+                    </p>
+                  )}
                   
                   <div className="flex flex-wrap gap-4 text-sm text-harmonic-500">
-                    {location && (
+                    {user?.location && (
                       <div className="flex items-center">
                         <MapPin className="h-4 w-4 mr-1" />
-                        <span>{location}</span>
+                        <span>{user.location}</span>
                       </div>
                     )}
                     
-                    {website && (
+                    {user?.website && (
                       <div className="flex items-center">
                         <Globe className="h-4 w-4 mr-1" />
                         <a 
-                          href={website} 
+                          href={user.website} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="text-accent2 hover:underline flex items-center"
                         >
-                          {website.replace(/^https?:\/\//, '')}
+                          {user.website.replace(/^https?:\/\//, '')}
                           <ExternalLink className="h-3 w-3 ml-1" />
                         </a>
                       </div>
                     )}
-                  </div>
-                  
-                  <div className="flex space-x-4 text-sm">
-                    <div>
-                      <span className="font-semibold">{USER.followers.toLocaleString()}</span>{' '}
-                      <span className="text-harmonic-500">Followers</span>
-                    </div>
-                    <div>
-                      <span className="font-semibold">{USER.following.toLocaleString()}</span>{' '}
-                      <span className="text-harmonic-500">Following</span>
-                    </div>
                   </div>
                 </>
               )}
@@ -286,9 +296,13 @@ const Profile = () => {
                 </Link>
               </div>
               
-              {USER_TRACKS.length > 0 ? (
+              {isLoadingTracks ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-harmonic-500" />
+                </div>
+              ) : userTracks.length > 0 ? (
                 <div className="space-y-1">
-                  {USER_TRACKS.map(track => (
+                  {userTracks.map(track => (
                     <TrackCard 
                       key={track.id} 
                       track={track}
@@ -319,80 +333,80 @@ const Profile = () => {
               <div>
                 <h2 className="text-xl font-semibold mb-4">Track Performance</h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div className="bg-white dark:bg-harmonic-800 rounded-lg shadow-sm p-6">
                     <h3 className="text-sm font-medium text-harmonic-500 mb-1">Total Plays</h3>
-                    <p className="text-3xl font-bold">37.5K</p>
+                    <p className="text-3xl font-bold">0</p>
                   </div>
                   
                   <div className="bg-white dark:bg-harmonic-800 rounded-lg shadow-sm p-6">
                     <h3 className="text-sm font-medium text-harmonic-500 mb-1">Followers</h3>
-                    <p className="text-3xl font-bold">2.3K</p>
+                    <p className="text-3xl font-bold">0</p>
                   </div>
                   
                   <div className="bg-white dark:bg-harmonic-800 rounded-lg shadow-sm p-6">
                     <h3 className="text-sm font-medium text-harmonic-500 mb-1">Likes</h3>
-                    <p className="text-3xl font-bold">12.8K</p>
-                  </div>
-                  
-                  <div className="bg-white dark:bg-harmonic-800 rounded-lg shadow-sm p-6">
-                    <h3 className="text-sm font-medium text-harmonic-500 mb-1">Comments</h3>
-                    <p className="text-3xl font-bold">947</p>
+                    <p className="text-3xl font-bold">0</p>
                   </div>
                 </div>
               </div>
               
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Top Performing Tracks</h2>
-                
-                <div className="bg-white dark:bg-harmonic-800 rounded-lg shadow-sm overflow-hidden">
-                  <div className="p-4 border-b border-harmonic-200 dark:border-harmonic-700 grid grid-cols-12 text-sm font-medium text-harmonic-500">
-                    <div className="col-span-6 md:col-span-5">Track</div>
-                    <div className="col-span-3 md:col-span-2 text-right">Plays</div>
-                    <div className="hidden md:block md:col-span-3 text-right">Release Date</div>
-                    <div className="col-span-3 md:col-span-2 text-right">Likes</div>
-                  </div>
+              {userTracks.length > 0 && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">Your Tracks</h2>
                   
-                  {USER_TRACKS.map((track, index) => (
-                    <div 
-                      key={track.id}
-                      className="p-4 grid grid-cols-12 items-center border-b border-harmonic-200 dark:border-harmonic-700 last:border-0 hover:bg-harmonic-100 dark:hover:bg-harmonic-700/20"
-                    >
-                      <div className="col-span-6 md:col-span-5 flex items-center">
-                        <div className="mr-3 font-medium text-harmonic-400">{index + 1}</div>
-                        <img 
-                          src={track.cover} 
-                          alt={track.title}
-                          className="h-10 w-10 rounded object-cover mr-3"
-                        />
-                        <div>
-                          <div className="font-medium text-sm">{track.title}</div>
-                        </div>
-                      </div>
-                      <div className="col-span-3 md:col-span-2 text-right">{track.playCount.toLocaleString()}</div>
-                      <div className="hidden md:block md:col-span-3 text-right text-harmonic-500">Mar 15, 2023</div>
-                      <div className="col-span-3 md:col-span-2 text-right">{Math.round(track.playCount * 0.06).toLocaleString()}</div>
+                  <div className="bg-white dark:bg-harmonic-800 rounded-lg shadow-sm overflow-hidden">
+                    <div className="p-4 border-b border-harmonic-200 dark:border-harmonic-700 grid grid-cols-12 text-sm font-medium text-harmonic-500">
+                      <div className="col-span-6 md:col-span-5">Track</div>
+                      <div className="col-span-3 md:col-span-2 text-right">Plays</div>
+                      <div className="hidden md:block md:col-span-3 text-right">Release Date</div>
+                      <div className="col-span-3 md:col-span-2 text-right">Likes</div>
                     </div>
-                  ))}
+                    
+                    {userTracks.map((track, index) => (
+                      <div 
+                        key={track.id}
+                        className="p-4 grid grid-cols-12 items-center border-b border-harmonic-200 dark:border-harmonic-700 last:border-0 hover:bg-harmonic-100 dark:hover:bg-harmonic-700/20"
+                      >
+                        <div className="col-span-6 md:col-span-5 flex items-center">
+                          <div className="mr-3 font-medium text-harmonic-400">{index + 1}</div>
+                          <img 
+                            src={track.cover} 
+                            alt={track.title}
+                            className="h-10 w-10 rounded object-cover mr-3"
+                          />
+                          <div>
+                            <div className="font-medium text-sm">{track.title}</div>
+                          </div>
+                        </div>
+                        <div className="col-span-3 md:col-span-2 text-right">{track.playCount || 0}</div>
+                        <div className="hidden md:block md:col-span-3 text-right text-harmonic-500">-</div>
+                        <div className="col-span-3 md:col-span-2 text-right">0</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
       </main>
       
-      <MusicPlayer 
-        track={playingTrackId 
-          ? {
-              id: playingTrackId,
-              title: USER_TRACKS.find(t => t.id === playingTrackId)?.title || '',
-              artist: USER.name,
-              cover: USER_TRACKS.find(t => t.id === playingTrackId)?.cover || '',
-              audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
-            }
-          : undefined
-        } 
-      />
+      {playingTrackId && (
+        <MusicPlayer 
+          track={
+            userTracks.find(t => t.id === playingTrackId) 
+              ? {
+                  id: playingTrackId,
+                  title: userTracks.find(t => t.id === playingTrackId)?.title || '',
+                  artist: user?.name || '',
+                  cover: userTracks.find(t => t.id === playingTrackId)?.cover || '',
+                  audioUrl: userTracks.find(t => t.id === playingTrackId)?.audioUrl || ''
+                }
+              : undefined
+          } 
+        />
+      )}
     </div>
   );
 };

@@ -2,13 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Search, User, Upload, Menu, X } from 'lucide-react';
+import { Search, User, Upload, Menu, X, LogOut } from 'lucide-react';
 import SearchBar from './SearchBar';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, logout, isAuthenticated } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -26,6 +28,10 @@ const Header = () => {
     setMobileMenuOpen(false);
   }, [location]);
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 ${
@@ -41,7 +47,7 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/browse">Browse</NavLink>
-            <NavLink to="/upload">Upload</NavLink>
+            {isAuthenticated && <NavLink to="/upload">Upload</NavLink>}
           </nav>
         </div>
         
@@ -50,23 +56,34 @@ const Header = () => {
             <SearchBar />
           </div>
           
-          <Link to="/profile">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <User className="h-5 w-5" />
-            </Button>
-          </Link>
-          
-          <Link to="/sign-in">
-            <Button variant="outline" className="font-medium">
-              Sign In
-            </Button>
-          </Link>
-          
-          <Link to="/sign-up">
-            <Button className="font-medium button-gradient">
-              Sign Up
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-4">
+              <Link to="/profile">
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+              
+              <Button variant="outline" onClick={handleLogout} className="font-medium flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Link to="/sign-in">
+                <Button variant="outline" className="font-medium">
+                  Sign In
+                </Button>
+              </Link>
+              
+              <Link to="/sign-up">
+                <Button className="font-medium button-gradient">
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
         
         <button 
@@ -83,7 +100,7 @@ const Header = () => {
       
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 glass-morphism animate-slide-up">
+        <div className="md:hidden absolute top-full left-0 right-0 glass-morphism animate-slide-in-right">
           <div className="flex flex-col p-4 space-y-4">
             <Link to="/" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
               Home
@@ -91,18 +108,33 @@ const Header = () => {
             <Link to="/browse" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
               Browse
             </Link>
-            <Link to="/upload" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
-              Upload
-            </Link>
-            <Link to="/profile" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
-              Profile
-            </Link>
-            <Link to="/sign-in" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
-              Sign In
-            </Link>
-            <Link to="/sign-up" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
-              Sign Up
-            </Link>
+            
+            {isAuthenticated ? (
+              <>
+                <Link to="/upload" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
+                  Upload
+                </Link>
+                <Link to="/profile" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
+                  Profile
+                </Link>
+                <button 
+                  className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md text-left text-red-500 flex items-center gap-2"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/sign-in" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
+                  Sign In
+                </Link>
+                <Link to="/sign-up" className="px-4 py-2 hover:bg-harmonic-200/40 rounded-md">
+                  Sign Up
+                </Link>
+              </>
+            )}
             
             <div className="pt-2">
               <SearchBar />

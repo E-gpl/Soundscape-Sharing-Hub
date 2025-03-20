@@ -3,41 +3,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import ArtistCard from './ArtistCard';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
-
-const FEATURED_ARTISTS = [
-  {
-    id: '1',
-    name: 'Luna Ray',
-    image: 'https://images.unsplash.com/photo-1549213783-8284d0336c4f?q=80&w=2070&auto=format&fit=crop',
-    tracks: 12,
-    followers: 15420
-  },
-  {
-    id: '2',
-    name: 'Atlas',
-    image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop',
-    tracks: 8,
-    followers: 9340
-  },
-  {
-    id: '3',
-    name: 'Skyline Echo',
-    image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop',
-    tracks: 16,
-    followers: 23750
-  },
-  {
-    id: '4',
-    name: 'Midnight Wave',
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2070&auto=format&fit=crop',
-    tracks: 5,
-    followers: 7840
-  }
-];
+import { ChevronRight, Loader2 } from 'lucide-react';
+import { useArtists } from '@/services/api';
 
 const FeaturedArtists = () => {
   const navigate = useNavigate();
+  const { data: artists = [], isLoading, isError } = useArtists();
+  
+  const featuredArtists = artists.slice(0, 4);
   
   return (
     <section className="py-12 animate-fade-in">
@@ -55,11 +28,31 @@ const FeaturedArtists = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {FEATURED_ARTISTS.map(artist => (
-            <ArtistCard key={artist.id} artist={artist} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-harmonic-500" />
+          </div>
+        ) : isError ? (
+          <div className="text-center py-12 bg-harmonic-100/50 dark:bg-harmonic-800/20 rounded-lg">
+            <h3 className="text-xl font-semibold mb-2">Error loading artists</h3>
+            <p className="text-harmonic-500">
+              Please try again later.
+            </p>
+          </div>
+        ) : featuredArtists.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredArtists.map(artist => (
+              <ArtistCard key={artist.id} artist={artist} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-harmonic-100/50 dark:bg-harmonic-800/20 rounded-lg">
+            <h3 className="text-xl font-semibold mb-2">No artists found</h3>
+            <p className="text-harmonic-500">
+              Be the first to create an artist profile!
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );

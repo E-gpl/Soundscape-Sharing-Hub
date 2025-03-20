@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,18 +13,28 @@ import {
   ArrowRight,
   Github,
   Apple,
-  Facebook
+  Facebook,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/profile');
+    }
+  }, [isAuthenticated, navigate]);
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
@@ -34,13 +44,25 @@ const SignIn = () => {
     
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const success = await login(email, password);
+      if (success) {
+        navigate('/profile');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
       setLoading(false);
-      toast.success('Signed in successfully!');
-      navigate('/profile');
-    }, 1500);
+    }
   };
+  
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-harmonic-500" />
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 bg-harmonic-100 dark:bg-harmonic-900">
@@ -113,10 +135,7 @@ const SignIn = () => {
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                  </svg>
+                  <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
                   Signing in...
                 </span>
               ) : (
@@ -139,13 +158,13 @@ const SignIn = () => {
             </div>
             
             <div className="mt-6 grid grid-cols-3 gap-3">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" disabled>
                 <Github className="h-4 w-4" />
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" disabled>
                 <Apple className="h-4 w-4" />
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" disabled>
                 <Facebook className="h-4 w-4" />
               </Button>
             </div>

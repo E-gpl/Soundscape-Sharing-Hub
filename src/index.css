@@ -29,6 +29,10 @@
     --ring: 240 5.9% 10%;
     --radius: 0.75rem;
     
+    /* Colors */
+    --accent1: 262 83% 58%;
+    --accent2: 199 89% 48%;
+    
     /* Sidebar variables */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 10% 3.9%;
@@ -60,6 +64,10 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    
+    /* Colors */
+    --accent1: 262 83% 58%;
+    --accent2: 199 89% 48%;
     
     /* Sidebar dark mode variables */
     --sidebar-background: 240 10% 3.9%;
@@ -93,6 +101,67 @@
   }
 }
 
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 /* Custom utility classes */
 @layer components {
   .glass-morphism {
@@ -100,11 +169,11 @@
   }
   
   .glass-card {
-    @apply bg-white/80 dark:bg-harmonic-800/80 backdrop-blur-md border border-harmonic-200/50 dark:border-harmonic-700/50 shadow-sm rounded-xl transition-all duration-300 hover:shadow-md;
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 shadow-sm rounded-xl transition-all duration-300 hover:shadow-md;
   }
   
   .navbar-blur {
-    @apply backdrop-blur-md bg-harmonic-100/80 dark:bg-harmonic-900/80 border-b border-harmonic-200 dark:border-harmonic-700/50 shadow-sm;
+    @apply backdrop-blur-md bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-700/50 shadow-sm;
   }
   
   .hover-scale {
@@ -116,7 +185,7 @@
   }
   
   .button-gradient {
-    @apply bg-gradient-to-r from-accent1 to-accent2 text-white font-medium hover:opacity-90 transition-opacity;
+    @apply bg-gradient-to-r from-[hsl(var(--accent1))] to-[hsl(var(--accent2))] text-white font-medium hover:opacity-90 transition-opacity;
   }
   
   .soft-shadow {
@@ -124,7 +193,7 @@
   }
   
   .heading-gradient {
-    @apply bg-gradient-to-r from-accent1 via-accent2 to-accent1 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[hsl(var(--accent1))] via-[hsl(var(--accent2))] to-[hsl(var(--accent1))] bg-clip-text text-transparent;
   }
   
   .link-hover {
@@ -143,6 +212,48 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+  
+  /* Animation classes */
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+  
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out forwards;
+  }
+  
+  .animate-slide-in-up {
+    animation: slide-in-up 0.3s ease-out forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out forwards;
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  .animate-shimmer {
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  /* Staggered animations */
+  .stagger-1 {
+    animation-delay: 0.1s;
+  }
+  
+  .stagger-2 {
+    animation-delay: 0.2s;
+  }
+  
+  .stagger-3 {
+    animation-delay: 0.3s;
+  }
+  
+  .stagger-4 {
+    animation-delay: 0.4s;
+  }
 }
-
-/* Remove unused App.css styles since we've integrated them */
