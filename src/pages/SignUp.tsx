@@ -15,10 +15,12 @@ import {
   Github,
   Apple,
   Facebook,
-  Loader2
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { checkSupabaseCredentials } from '@/lib/supabase';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -29,6 +31,12 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasCredentials, setHasCredentials] = useState(true);
+  
+  useEffect(() => {
+    // Check if Supabase credentials are available
+    setHasCredentials(checkSupabaseCredentials());
+  }, []);
   
   // Redirect if already authenticated
   useEffect(() => {
@@ -40,18 +48,23 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!hasCredentials) {
+      toast.error('无法连接到数据库。请确保已设置 Supabase 凭据。');
+      return;
+    }
+    
     if (!name || !email || !password) {
-      toast.error('Please fill in all fields');
+      toast.error('请填写所有字段');
       return;
     }
     
     if (!acceptTerms) {
-      toast.error('You must accept the terms and privacy policy');
+      toast.error('您必须接受条款和隐私政策');
       return;
     }
     
     if (password.length < 8) {
-      toast.error('Password must be at least 8 characters long');
+      toast.error('密码必须至少为 8 个字符');
       return;
     }
     
@@ -87,20 +100,32 @@ const SignUp = () => {
       
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-          <p className="text-harmonic-500">Join the Harmonic community today</p>
+          <h1 className="text-3xl font-bold mb-2">创建您的账号</h1>
+          <p className="text-harmonic-500">今天加入 Harmonic 社区</p>
         </div>
+        
+        {!hasCredentials && (
+          <div className="mb-6 p-4 border border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg flex items-start space-x-3">
+            <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-yellow-700 dark:text-yellow-400">数据库连接问题</h3>
+              <p className="text-sm text-yellow-600 dark:text-yellow-300">
+                未能连接到 Supabase 数据库。这是演示模式，账户创建功能有限。
+              </p>
+            </div>
+          </div>
+        )}
         
         <div className="bg-white dark:bg-harmonic-800 rounded-xl shadow-sm border border-harmonic-200 dark:border-harmonic-700 p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">姓名</Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Jane Doe"
+                  placeholder="张三"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="pl-10"
@@ -110,13 +135,13 @@ const SignUp = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">电子邮箱</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="your@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -126,7 +151,7 @@ const SignUp = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">密码</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
                 <Input
@@ -152,7 +177,7 @@ const SignUp = () => {
                 </button>
               </div>
               <p className="text-xs text-harmonic-500">
-                Must be at least 8 characters long
+                密码必须至少为 8 个字符
               </p>
             </div>
             
@@ -165,13 +190,13 @@ const SignUp = () => {
                 className="rounded border-harmonic-300 text-accent2 focus:ring-accent2"
               />
               <Label htmlFor="terms" className="text-sm cursor-pointer">
-                I accept the{' '}
+                我接受{' '}
                 <Link to="/terms" className="text-accent2 hover:underline">
-                  Terms of Service
+                  服务条款
                 </Link>{' '}
-                and{' '}
+                和{' '}
                 <Link to="/privacy" className="text-accent2 hover:underline">
-                  Privacy Policy
+                  隐私政策
                 </Link>
               </Label>
             </div>
@@ -179,16 +204,16 @@ const SignUp = () => {
             <Button 
               type="submit" 
               className="w-full button-gradient"
-              disabled={loading}
+              disabled={loading || !hasCredentials}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
                   <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-                  Creating account...
+                  创建账号中...
                 </span>
               ) : (
                 <span className="flex items-center justify-center">
-                  Create Account
+                  创建账号
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </span>
               )}
@@ -201,7 +226,7 @@ const SignUp = () => {
                 <Separator />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-harmonic-800 px-2 text-harmonic-500">Or continue with</span>
+                <span className="bg-white dark:bg-harmonic-800 px-2 text-harmonic-500">或继续使用</span>
               </div>
             </div>
             
@@ -221,9 +246,9 @@ const SignUp = () => {
         
         <div className="text-center mt-6">
           <p className="text-sm text-harmonic-500">
-            Already have an account?{' '}
+            已有账号？{' '}
             <Link to="/sign-in" className="text-accent2 hover:underline font-medium">
-              Sign in
+              登录
             </Link>
           </p>
         </div>

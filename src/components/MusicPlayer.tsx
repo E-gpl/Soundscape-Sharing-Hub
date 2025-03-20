@@ -5,6 +5,7 @@ import {
   Repeat, Shuffle, MoreHorizontal, Heart
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { toast } from 'sonner';
 
 interface MusicPlayerProps {
   track?: {
@@ -23,24 +24,17 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animationRef = useRef<number | null>(null);
 
-  // If no track is provided, show a placeholder
-  const defaultTrack = {
-    id: '1',
-    title: 'Select a track',
-    artist: 'to start listening',
-    cover: 'https://placehold.co/400x400/f5f5f7/a1a1a6?text=Harmonic',
-    audioUrl: '',
-  };
-
-  const displayTrack = track || defaultTrack;
-
   useEffect(() => {
+    // Only show the player if a track is provided
+    setIsVisible(!!track && !!track.audioUrl);
+    
     // Reset player state when track changes
-    if (track) {
+    if (track && track.audioUrl) {
       setIsPlaying(false);
       setCurrentTime(0);
       
@@ -52,9 +46,10 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
           setDuration(audioRef.current?.duration || 0);
         });
         
-        // Play automatically when a new track is loaded
-        audioRef.current.addEventListener('canplaythrough', () => {
-          togglePlayPause();
+        audioRef.current.addEventListener('error', (e) => {
+          console.error('Audio loading error:', e);
+          toast.error('无法加载音频文件');
+          setIsVisible(false);
         });
       }
     }
@@ -67,7 +62,10 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
   }, [track]);
 
   const togglePlayPause = () => {
-    if (!track) return;
+    if (!track || !track.audioUrl) {
+      toast.error('没有可播放的音频');
+      return;
+    }
     
     if (isPlaying) {
       audioRef.current?.pause();
@@ -75,7 +73,13 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
         cancelAnimationFrame(animationRef.current);
       }
     } else {
-      audioRef.current?.play();
+      const playPromise = audioRef.current?.play();
+      if (playPromise) {
+        playPromise.catch(error => {
+          console.error('Playback error:', error);
+          toast.error('无法播放音频');
+        });
+      }
       animationRef.current = requestAnimationFrame(updateProgress);
     }
     
@@ -128,11 +132,14 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
+  // Don't render anything if no track is provided
+  if (!isVisible) return null;
+
   return (
     <div className="fixed bottom-0 left-0 right-0 glass-morphism py-3 px-4 animate-slide-up">
       <audio 
         ref={audioRef} 
-        src={displayTrack.audioUrl}
+        src={track?.audioUrl}
         onEnded={() => setIsPlaying(false)}
       />
       
@@ -140,14 +147,14 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
         {/* Track Info */}
         <div className="flex items-center space-x-4">
           <img 
-            src={displayTrack.cover} 
-            alt={displayTrack.title} 
+            src={track?.cover} 
+            alt={track?.title} 
             className="h-12 w-12 rounded-md object-cover"
           />
           
           <div className="overflow-hidden">
-            <h4 className="font-medium text-sm truncate">{displayTrack.title}</h4>
-            <p className="text-xs text-harmonic-500 truncate">{displayTrack.artist}</p>
+            <h4 className="font-medium text-sm truncate">{track?.title}</h4>
+            <p className="text-xs text-harmonic-500 truncate">{track?.artist}</p>
           </div>
           
           <button 
@@ -172,7 +179,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ track }) => {
             <button 
               onClick={togglePlayPause}
               className="bg-harmonic-900 dark:bg-white text-white dark:text-harmonic-900 rounded-full p-2 hover:scale-105 transition-transform"
-              disabled={!track}
             >
               {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </button>
