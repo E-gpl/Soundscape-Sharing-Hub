@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import MusicPlayer from '@/components/MusicPlayer';
@@ -35,7 +34,6 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          {/* Animated background elements */}
           <div className="absolute top-1/4 -left-56 w-96 h-96 bg-accent1 opacity-30 rounded-full blur-3xl animate-blob"></div>
           <div className="absolute top-1/3 -right-56 w-96 h-96 bg-accent2 opacity-20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
           <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-blue-500 opacity-15 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
@@ -286,20 +284,20 @@ const Index = () => {
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-6 md:mb-0">
                 <h2 className="text-2xl font-bold heading-gradient mb-2">Harmonic</h2>
-                <p className="text-sm text-harmonic-500">© 2023 Harmonic. All rights reserved.</p>
+                <p className="text-sm text-harmonic-500">© 2025 Harmonic. All rights reserved. Author: George Lu</p>
               </div>
               
               <div className="flex flex-wrap justify-center gap-6">
-                <a href="#" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
+                <a href="/terms" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
                   Terms
                 </a>
-                <a href="#" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
+                <a href="/privacy" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
                   Privacy
                 </a>
-                <a href="#" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
+                <a href="/help" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
                   Help
                 </a>
-                <a href="#" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
+                <a href="/contact" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
                   Contact
                 </a>
               </div>

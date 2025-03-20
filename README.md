@@ -1,3 +1,4 @@
+
 # MusicArtistry Platform
 
 ## Introduction
@@ -26,11 +27,24 @@ This application leverages modern web technologies to ensure optimal performance
 - **React**: Industry-standard library for building interactive user interfaces
 - **shadcn-ui**: Premium UI components providing elegant, consistent design elements
 - **Tailwind CSS**: Utility-first CSS framework enabling rapid styling and customization
+- **Supabase**: Backend-as-a-service for authentication, database, and storage needs
 
 ## Development Setup
 
 ### Prerequisites
 - Node.js & npm - [Installation guide with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+### Supabase Configuration
+This application uses Supabase for backend functionality. To set it up:
+
+1. Create a Supabase account at [https://supabase.com](https://supabase.com)
+2. Create a new project and note down your project URL and anon/public key
+3. Create an `.env.local` file in the project root with:
+   ```
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+4. Restart your development server if it's already running
 
 ### Installation Process
 
@@ -43,6 +57,10 @@ cd musicartistry
 
 # Install dependencies
 npm install
+
+# Create .env.local file with Supabase credentials
+# VITE_SUPABASE_URL=your_supabase_project_url
+# VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # Start development server
 npm run dev
@@ -77,6 +95,7 @@ For a streamlined deployment process via Netlify:
 3. Configure deployment settings:
    - Build command: `npm run build`
    - Publish directory: `dist`
+4. Add environment variables (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY) in the Netlify dashboard
 
 ### Vercel Deployment
 For deployment through Vercel:
@@ -84,6 +103,7 @@ For deployment through Vercel:
 1. Push your codebase to GitHub
 2. Import your repository in Vercel dashboard
 3. Deploy with default settings (Vercel automatically detects and configures Vite projects)
+4. Add environment variables (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY) in the Vercel dashboard
 
 ## Project Structure
 
@@ -92,7 +112,9 @@ For deployment through Vercel:
 ├── public/           # Static assets and resources
 ├── src/
 │   ├── components/   # React components (UI elements, player controls)
+│   ├── contexts/     # React context providers (auth, theme)
 │   ├── lib/          # Utility functions, hooks, and API services
+│   ├── pages/        # Route components for different pages
 │   ├── styles/       # Global and component-specific styles
 │   ├── types/        # TypeScript type definitions
 │   ├── App.tsx       # Application entry point
@@ -110,3 +132,10 @@ Contributions to enhance the platform are welcomed. Please review the contributi
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for detailed terms and conditions.
+
+## Contact
+
+For questions, feedback, or support, please contact the author: lhy3453069@gmail.com
+
+## Author
+George Lu © 2025
