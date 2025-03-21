@@ -1,302 +1,235 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/Header';
-import { Card } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Info, Database, User, Music, HeartHandshake } from 'lucide-react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { hasValidSupabaseCredentials } from '@/lib/supabase';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { Search, Music, Upload, UserCircle, HelpCircle, FileText, Play, PlusCircle } from 'lucide-react';
 
 const Help = () => {
-  const supabaseConfigured = hasValidSupabaseCredentials();
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Search functionality would go here
+    console.log(`Searching for: ${searchQuery}`);
+  };
+  
+  const generalFaqs = [
+    {
+      question: "What is Harmonic?",
+      answer: "Harmonic is a digital platform designed for independent musicians to share their music with the world. We provide tools for uploading, distributing, and promoting your original music while helping listeners discover new artists and tracks."
+    },
+    {
+      question: "Is Harmonic free to use?",
+      answer: "Yes, Harmonic offers a free tier that allows users to upload music, create profiles, and connect with listeners. We also offer premium options with additional features for artists who want to expand their reach."
+    },
+    {
+      question: "How do I create an account?",
+      answer: "Creating an account is simple. Click the 'Sign Up' button in the top right corner of the page, enter your details, verify your email address, and you're ready to start using Harmonic."
+    },
+    {
+      question: "Can I delete my account?",
+      answer: "Yes, you can delete your account at any time. Go to your profile settings, scroll to the bottom, and click on 'Delete Account'. Please note that this action will permanently remove all your content and cannot be undone."
+    },
+    {
+      question: "How can I contact support?",
+      answer: "For support inquiries, please visit our Contact page or email us directly at support@harmonic.example.com. Our support team is available Monday through Friday, 9AM to 6PM ET."
+    }
+  ];
+  
+  const artistFaqs = [
+    {
+      question: "How do I upload my music?",
+      answer: "To upload your music, sign in to your account, navigate to the Upload page, and follow the prompts. You can upload audio files in .mp3, .wav, or .flac formats, add cover art, and include details about your track."
+    },
+    {
+      question: "What audio file formats are supported?",
+      answer: "Harmonic supports the following audio formats: MP3, WAV, FLAC, AAC, AIFF, and OGG. Files must be less than 50MB for the free tier, while premium users can upload files up to 250MB."
+    },
+    {
+      question: "Can I edit or remove my uploaded tracks?",
+      answer: "Yes, you can edit or remove your tracks at any time. Go to your profile, find the track you want to modify, and use the edit or delete options. Note that if your track has been shared or added to playlists, removing it will also remove it from those locations."
+    },
+    {
+      question: "How can I promote my music on Harmonic?",
+      answer: "You can promote your music by completing your profile, adding high-quality cover art, using appropriate tags, sharing your tracks on social media directly from Harmonic, and engaging with the community by following other artists and leaving comments."
+    },
+    {
+      question: "Do I retain rights to my music?",
+      answer: "Yes, you retain all rights to your original music. By uploading to Harmonic, you grant us a license to host and distribute your content on our platform, but you remain the copyright holder."
+    }
+  ];
+  
+  const listenerFaqs = [
+    {
+      question: "How do I find new music?",
+      answer: "Discover new music through our Browse page, which features curated playlists, trending tracks, and new releases. You can also use the Search function to find specific artists or genres, or let our recommendation engine suggest music based on your listening history."
+    },
+    {
+      question: "Can I create playlists?",
+      answer: "Yes, you can create, edit, and share playlists. Click on the '+' button next to any track to add it to a new or existing playlist. Your playlists can be private or public, allowing you to share them with friends or the Harmonic community."
+    },
+    {
+      question: "How does the recommendation system work?",
+      answer: "Our recommendation system analyzes your listening habits, liked tracks, and playlists to suggest music you might enjoy. The more you interact with the platform, the more personalized your recommendations become."
+    },
+    {
+      question: "Can I download music from Harmonic?",
+      answer: "Downloading capabilities depend on the artist's preferences. Some artists allow their tracks to be downloaded, while others only permit streaming. Look for the download icon on tracks that are available for download."
+    },
+    {
+      question: "How can I support my favorite artists?",
+      answer: "Support your favorite artists by following them, adding their tracks to your playlists, sharing their music on social media, and engaging with their content through comments and likes. This increases their visibility on the platform."
+    }
+  ];
   
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-grow pt-24 pb-16 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-10">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Help Center</h1>
-            <p className="text-harmonic-600 dark:text-harmonic-300 max-w-2xl mx-auto">
-              Get answers to your questions about using Harmonic
-            </p>
+      <main className="flex-1 pt-24 pb-16">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-10">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">Help Center</h1>
+              <p className="text-lg text-harmonic-600 dark:text-harmonic-300 max-w-2xl mx-auto">
+                Find answers to common questions and learn how to get the most out of Harmonic.
+              </p>
+              
+              <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-harmonic-500" />
+                  <Input
+                    type="search"
+                    placeholder="Search for answers..."
+                    className="pl-10 h-12"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" className="button-gradient h-12">Search</Button>
+              </form>
+            </div>
+            
+            <Separator className="mb-12" />
+            
+            <Tabs defaultValue="general" className="mb-12">
+              <TabsList className="w-full max-w-md mx-auto grid grid-cols-3 mb-8">
+                <TabsTrigger value="general" className="data-[state=active]:bg-accent1/10 data-[state=active]:text-accent1 dark:data-[state=active]:bg-accent1/20">
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  General
+                </TabsTrigger>
+                <TabsTrigger value="artists" className="data-[state=active]:bg-accent2/10 data-[state=active]:text-accent2 dark:data-[state=active]:bg-accent2/20">
+                  <Music className="h-4 w-4 mr-2" />
+                  For Artists
+                </TabsTrigger>
+                <TabsTrigger value="listeners" className="data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-500 dark:data-[state=active]:bg-blue-500/20">
+                  <Play className="h-4 w-4 mr-2" />
+                  For Listeners
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="general" className="mt-0">
+                <div className="glass-card p-6 rounded-xl">
+                  <h2 className="text-2xl font-semibold mb-6">General Questions</h2>
+                  <Accordion type="single" collapsible className="w-full">
+                    {generalFaqs.map((faq, index) => (
+                      <AccordionItem key={index} value={`item-${index}`}>
+                        <AccordionTrigger className="text-left font-medium">{faq.question}</AccordionTrigger>
+                        <AccordionContent className="text-harmonic-600 dark:text-harmonic-300">
+                          {faq.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="artists" className="mt-0">
+                <div className="glass-card p-6 rounded-xl">
+                  <h2 className="text-2xl font-semibold mb-6">For Artists</h2>
+                  <Accordion type="single" collapsible className="w-full">
+                    {artistFaqs.map((faq, index) => (
+                      <AccordionItem key={index} value={`item-${index}`}>
+                        <AccordionTrigger className="text-left font-medium">{faq.question}</AccordionTrigger>
+                        <AccordionContent className="text-harmonic-600 dark:text-harmonic-300">
+                          {faq.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="listeners" className="mt-0">
+                <div className="glass-card p-6 rounded-xl">
+                  <h2 className="text-2xl font-semibold mb-6">For Listeners</h2>
+                  <Accordion type="single" collapsible className="w-full">
+                    {listenerFaqs.map((faq, index) => (
+                      <AccordionItem key={index} value={`item-${index}`}>
+                        <AccordionTrigger className="text-left font-medium">{faq.question}</AccordionTrigger>
+                        <AccordionContent className="text-harmonic-600 dark:text-harmonic-300">
+                          {faq.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              <div className="glass-card p-6 rounded-xl text-center hover-scale">
+                <div className="bg-accent1/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-accent1" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Documentation</h3>
+                <p className="text-harmonic-500 mb-4">
+                  Explore our comprehensive guides and tutorials for both artists and listeners.
+                </p>
+                <Button variant="outline" className="w-full">View Documents</Button>
+              </div>
+              
+              <div className="glass-card p-6 rounded-xl text-center hover-scale">
+                <div className="bg-accent2/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Upload className="h-8 w-8 text-accent2" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Upload Guides</h3>
+                <p className="text-harmonic-500 mb-4">
+                  Learn how to upload and manage your music with our step-by-step tutorials.
+                </p>
+                <Button variant="outline" className="w-full">View Guides</Button>
+              </div>
+              
+              <div className="glass-card p-6 rounded-xl text-center hover-scale">
+                <div className="bg-blue-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <UserCircle className="h-8 w-8 text-blue-500" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Account Help</h3>
+                <p className="text-harmonic-500 mb-4">
+                  Get assistance with account settings, privacy, and security features.
+                </p>
+                <Button variant="outline" className="w-full">Get Help</Button>
+              </div>
+            </div>
+            
+            <div className="glass-card p-8 rounded-xl text-center bg-gradient-to-r from-accent1/5 to-accent2/5">
+              <h2 className="text-2xl font-semibold mb-4">Still Have Questions?</h2>
+              <p className="text-harmonic-600 dark:text-harmonic-300 max-w-2xl mx-auto mb-6">
+                If you couldn't find the answer you were looking for, our support team is here to help.
+                Reach out and we'll get back to you as soon as possible.
+              </p>
+              <Button className="button-gradient">Contact Support</Button>
+            </div>
           </div>
-          
-          {!supabaseConfigured && (
-            <Alert variant="destructive" className="mb-8">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Supabase Configuration Required</AlertTitle>
-              <AlertDescription>
-                Your Supabase credentials are missing. Please see the "Setting Up Supabase" section below.
-              </AlertDescription>
-            </Alert>
-          )}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            <Card className="p-6 hover-scale">
-              <div className="flex items-center mb-4">
-                <div className="bg-accent1/10 p-2 rounded-full mr-3">
-                  <Database className="h-5 w-5 text-accent1" />
-                </div>
-                <h3 className="text-xl font-semibold">Database Setup</h3>
-              </div>
-              <p className="text-harmonic-600 dark:text-harmonic-300 mb-4">
-                Learn how to set up your database and configure Supabase credentials.
-              </p>
-              <Button variant="link" className="p-0 text-accent1" onClick={() => document.getElementById('supabase-setup')?.scrollIntoView({ behavior: 'smooth' })}>
-                View Instructions
-              </Button>
-            </Card>
-            
-            <Card className="p-6 hover-scale">
-              <div className="flex items-center mb-4">
-                <div className="bg-accent2/10 p-2 rounded-full mr-3">
-                  <User className="h-5 w-5 text-accent2" />
-                </div>
-                <h3 className="text-xl font-semibold">Account Management</h3>
-              </div>
-              <p className="text-harmonic-600 dark:text-harmonic-300 mb-4">
-                How to create and manage your Harmonic account, update your profile, and reset your password.
-              </p>
-              <Button variant="link" className="p-0 text-accent2" onClick={() => document.getElementById('account-management')?.scrollIntoView({ behavior: 'smooth' })}>
-                View Instructions
-              </Button>
-            </Card>
-            
-            <Card className="p-6 hover-scale">
-              <div className="flex items-center mb-4">
-                <div className="bg-blue-500/10 p-2 rounded-full mr-3">
-                  <Music className="h-5 w-5 text-blue-500" />
-                </div>
-                <h3 className="text-xl font-semibold">Uploading Music</h3>
-              </div>
-              <p className="text-harmonic-600 dark:text-harmonic-300 mb-4">
-                Learn how to upload your music, manage your tracks, and share them with the world.
-              </p>
-              <Button variant="link" className="p-0 text-blue-500" onClick={() => document.getElementById('uploading-music')?.scrollIntoView({ behavior: 'smooth' })}>
-                View Instructions
-              </Button>
-            </Card>
-            
-            <Card className="p-6 hover-scale">
-              <div className="flex items-center mb-4">
-                <div className="bg-purple-500/10 p-2 rounded-full mr-3">
-                  <HeartHandshake className="h-5 w-5 text-purple-500" />
-                </div>
-                <h3 className="text-xl font-semibold">Community Guidelines</h3>
-              </div>
-              <p className="text-harmonic-600 dark:text-harmonic-300 mb-4">
-                Our community guidelines ensure Harmonic remains a positive space for music creators and listeners.
-              </p>
-              <Button variant="link" className="p-0 text-purple-500" onClick={() => document.getElementById('community-guidelines')?.scrollIntoView({ behavior: 'smooth' })}>
-                View Guidelines
-              </Button>
-            </Card>
-          </div>
-          
-          <section id="supabase-setup" className="mb-12 scroll-m-24">
-            <Card className="p-8">
-              <div className="flex items-center mb-6">
-                <Database className="h-6 w-6 text-accent1 mr-3" />
-                <h2 className="text-2xl font-bold">Setting Up Supabase</h2>
-              </div>
-              
-              <div className="space-y-6">
-                <p>
-                  Harmonic uses Supabase for the backend infrastructure. To use all features of the application, you need to configure your Supabase credentials.
-                </p>
-                
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Environment Variables Required</AlertTitle>
-                  <AlertDescription>
-                    You'll need to set the following environment variables:
-                  </AlertDescription>
-                </Alert>
-                
-                <div className="bg-harmonic-100 dark:bg-harmonic-800 p-4 rounded-md overflow-x-auto">
-                  <pre className="text-sm">
-                    <code>
-                      VITE_SUPABASE_URL=your_supabase_project_url<br />
-                      VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-                    </code>
-                  </pre>
-                </div>
-                
-                <h3 className="text-xl font-semibold mt-6">Step-by-step Instructions</h3>
-                
-                <ol className="list-decimal list-inside space-y-4 pl-4">
-                  <li>Create a Supabase account at <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-accent1 hover:underline">supabase.com</a></li>
-                  <li>Create a new project and note down the URL and anon/public key</li>
-                  <li>Create a <code className="bg-harmonic-100 dark:bg-harmonic-800 px-1 py-0.5 rounded text-sm">.env</code> file in the root of your project</li>
-                  <li>Add the environment variables with your Supabase credentials</li>
-                  <li>Restart your development server</li>
-                </ol>
-                
-                <p className="mt-4">
-                  If you're deploying to production, make sure to set these environment variables in your hosting platform.
-                </p>
-              </div>
-            </Card>
-          </section>
-          
-          <section id="account-management" className="mb-12 scroll-m-24">
-            <Card className="p-8">
-              <div className="flex items-center mb-6">
-                <User className="h-6 w-6 text-accent2 mr-3" />
-                <h2 className="text-2xl font-bold">Account Management</h2>
-              </div>
-              
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="create-account">
-                  <AccordionTrigger>How do I create an account?</AccordionTrigger>
-                  <AccordionContent>
-                    <p>To create an account:</p>
-                    <ol className="list-decimal list-inside space-y-2 mt-2 pl-4">
-                      <li>Click on "Sign Up" in the navigation bar</li>
-                      <li>Fill in your name, email address, and password</li>
-                      <li>Click "Create Account"</li>
-                      <li>Check your email for a verification link</li>
-                    </ol>
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="update-profile">
-                  <AccordionTrigger>How do I update my profile?</AccordionTrigger>
-                  <AccordionContent>
-                    <p>To update your profile:</p>
-                    <ol className="list-decimal list-inside space-y-2 mt-2 pl-4">
-                      <li>Sign in to your account</li>
-                      <li>Navigate to your Profile page by clicking on your avatar or "Profile" in the menu</li>
-                      <li>Click "Edit Profile"</li>
-                      <li>Update your information and click "Save Changes"</li>
-                    </ol>
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="reset-password">
-                  <AccordionTrigger>How do I reset my password?</AccordionTrigger>
-                  <AccordionContent>
-                    <p>To reset your password:</p>
-                    <ol className="list-decimal list-inside space-y-2 mt-2 pl-4">
-                      <li>Go to the Sign In page</li>
-                      <li>Click "Forgot Password"</li>
-                      <li>Enter your email address</li>
-                      <li>Check your email for a password reset link</li>
-                      <li>Click the link and create a new password</li>
-                    </ol>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </Card>
-          </section>
-          
-          <section id="uploading-music" className="mb-12 scroll-m-24">
-            <Card className="p-8">
-              <div className="flex items-center mb-6">
-                <Music className="h-6 w-6 text-blue-500 mr-3" />
-                <h2 className="text-2xl font-bold">Uploading Music</h2>
-              </div>
-              
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="upload-track">
-                  <AccordionTrigger>How do I upload a track?</AccordionTrigger>
-                  <AccordionContent>
-                    <p>To upload a track:</p>
-                    <ol className="list-decimal list-inside space-y-2 mt-2 pl-4">
-                      <li>Sign in to your account</li>
-                      <li>Click "Upload" in the navigation bar</li>
-                      <li>Fill in the track details (title, description, etc.)</li>
-                      <li>Upload your audio file and cover art</li>
-                      <li>Click "Upload Track"</li>
-                    </ol>
-                    <p className="mt-2">
-                      Note: You must have an artist profile before uploading tracks. If you don't have one yet, you'll be prompted to create it.
-                    </p>
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="manage-tracks">
-                  <AccordionTrigger>How do I manage my tracks?</AccordionTrigger>
-                  <AccordionContent>
-                    <p>To manage your tracks:</p>
-                    <ol className="list-decimal list-inside space-y-2 mt-2 pl-4">
-                      <li>Go to your Profile page</li>
-                      <li>Navigate to the "My Tracks" section</li>
-                      <li>Here you can view, edit, or delete your tracks</li>
-                    </ol>
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="share-music">
-                  <AccordionTrigger>How do I share my music?</AccordionTrigger>
-                  <AccordionContent>
-                    <p>To share your music:</p>
-                    <ol className="list-decimal list-inside space-y-2 mt-2 pl-4">
-                      <li>Navigate to the track you want to share</li>
-                      <li>Click the "Share" button</li>
-                      <li>Copy the link or share directly to social media</li>
-                    </ol>
-                    <p className="mt-2">
-                      You can also share your artist profile page to let listeners discover all your music.
-                    </p>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </Card>
-          </section>
-          
-          <section id="community-guidelines" className="scroll-m-24">
-            <Card className="p-8">
-              <div className="flex items-center mb-6">
-                <HeartHandshake className="h-6 w-6 text-purple-500 mr-3" />
-                <h2 className="text-2xl font-bold">Community Guidelines</h2>
-              </div>
-              
-              <div className="space-y-4">
-                <p>
-                  At Harmonic, we believe in creating a positive and supportive community for music creators and listeners. 
-                  Please follow these guidelines to ensure everyone has a great experience:
-                </p>
-                
-                <div className="space-y-4 mt-4">
-                  <div>
-                    <h3 className="font-semibold text-lg">Respect Copyright</h3>
-                    <p className="text-harmonic-600 dark:text-harmonic-300">
-                      Only upload content you have created or have permission to use. Respect other artists' work and intellectual property.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-semibold text-lg">Be Kind and Supportive</h3>
-                    <p className="text-harmonic-600 dark:text-harmonic-300">
-                      Provide constructive feedback. Avoid hateful or offensive comments. Treat others with respect.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-semibold text-lg">No Harmful Content</h3>
-                    <p className="text-harmonic-600 dark:text-harmonic-300">
-                      Don't upload or share content that promotes hatred, violence, or discrimination. Keep Harmonic a safe space for everyone.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-semibold text-lg">Accurate Information</h3>
-                    <p className="text-harmonic-600 dark:text-harmonic-300">
-                      Provide accurate information about yourself and your music. Don't impersonate others or provide misleading details.
-                    </p>
-                  </div>
-                </div>
-                
-                <p className="mt-4">
-                  Violations of these guidelines may result in content removal or account suspension. If you see content that violates these guidelines, please report it.
-                </p>
-              </div>
-            </Card>
-          </section>
         </div>
       </main>
     </div>

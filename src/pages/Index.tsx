@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
-import MusicPlayer from '@/components/MusicPlayer';
 import { Button } from '@/components/ui/button';
-import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart, Globe, Zap } from 'lucide-react';
+import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart, Globe, Zap, FileMusic, BarChart3, Shield, ShieldCheck, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Index = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -162,6 +163,68 @@ const Index = () => {
                   Get detailed listener data and play statistics to understand your music's impact around the world
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Enhanced Platform Features Section */}
+        <section className="py-16 relative">
+          <div className="container px-4 md:px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Powerful Platform Features</h2>
+              <p className="text-harmonic-600 dark:text-harmonic-300 max-w-2xl mx-auto">
+                Everything you need to create, share, and grow your music career
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="bg-accent1/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                    <FileMusic className="h-6 w-6 text-accent1" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">High-Quality Audio</h3>
+                  <p className="text-harmonic-500 text-sm">
+                    Upload and stream your music in high-definition audio formats up to 320kbps
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="bg-accent2/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                    <BarChart3 className="h-6 w-6 text-accent2" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Audience Insights</h3>
+                  <p className="text-harmonic-500 text-sm">
+                    Track plays, engagement, and audience demographics with detailed analytics
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="bg-blue-500/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                    <ShieldCheck className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Content Protection</h3>
+                  <p className="text-harmonic-500 text-sm">
+                    Secure your music with our copyright protection and licensing tools
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="bg-purple-500/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                    <MessageSquare className="h-6 w-6 text-purple-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Artist Community</h3>
+                  <p className="text-harmonic-500 text-sm">
+                    Connect with other musicians, collaborate, and share experiences
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>

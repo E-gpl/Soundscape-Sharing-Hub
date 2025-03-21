@@ -6,7 +6,6 @@ import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
@@ -74,19 +73,19 @@ const Header = () => {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <Link to="/browse">
-                  <NavigationMenuLink className="px-4 py-2 hover:text-accent1 transition-colors">
+                <NavigationMenuLink asChild>
+                  <Link to="/browse" className="px-4 py-2 hover:text-accent1 transition-colors">
                     Browse
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
               
               <NavigationMenuItem>
-                <Link to="/search">
-                  <NavigationMenuLink className="px-4 py-2 hover:text-accent1 transition-colors">
+                <NavigationMenuLink asChild>
+                  <Link to="/search" className="px-4 py-2 hover:text-accent1 transition-colors">
                     Search
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
@@ -239,5 +238,8 @@ const Header = () => {
     </header>
   );
 };
+
+// Import the NavigationMenuLink component
+const { NavigationMenuLink } = NavigationMenu;
 
 export default Header;
