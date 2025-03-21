@@ -54,4 +54,6 @@ const ThemeToggle = ({
   );
 };
 
+// Export as both default and named export
 export default ThemeToggle;
+export { ThemeToggle };
