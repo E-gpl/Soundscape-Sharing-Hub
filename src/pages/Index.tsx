@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import MusicPlayer from '@/components/MusicPlayer';
@@ -6,10 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart, Globe, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { checkSupabaseCredentials } from '@/lib/supabase';
 import { useTheme } from '@/contexts/ThemeContext';
-import FeaturedArtists from '@/components/FeaturedArtists';
-import NewReleases from '@/components/NewReleases';
 
 const Index = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -18,9 +14,6 @@ const Index = () => {
   const { theme } = useTheme();
   
   useEffect(() => {
-    // Check if Supabase credentials are valid on initial load
-    checkSupabaseCredentials();
-    
     const handleScroll = () => {
       const isScrolled = window.scrollY > 100;
       if (isScrolled !== scrolled) {
@@ -126,12 +119,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
-      {/* New Releases Section */}
-      <NewReleases />
-      
-      {/* Featured Artists Section */}
-      <FeaturedArtists />
       
       {/* Content Sections */}
       <div className="bg-gradient-to-b from-harmonic-100 to-white dark:from-harmonic-900 dark:to-harmonic-800">
@@ -295,7 +282,7 @@ const Index = () => {
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-6 md:mb-0">
                 <h2 className="text-2xl font-bold heading-gradient mb-2">Harmonic</h2>
-                <p className="text-sm text-harmonic-500">© 2025 Harmonic. All rights reserved. Author: George Lu</p>
+                <p className="text-sm text-harmonic-500">© 2025 Harmonic. All rights reserved.</p>
               </div>
               
               <div className="flex flex-wrap justify-center gap-6">

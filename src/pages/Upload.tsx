@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -13,12 +14,16 @@ import {
   Music,
   Check,
   AlertCircle,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Upload = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [trackTitle, setTrackTitle] = useState('');
   const [trackDescription, setTrackDescription] = useState('');
   const [genre, setGenre] = useState('');
@@ -34,6 +39,13 @@ const Upload = () => {
   
   const trackInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  
+  // Redirect if not authenticated
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/sign-in');
+    }
+  }, [isAuthenticated, navigate]);
   
   const handleTrackUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -91,7 +103,7 @@ const Upload = () => {
     }
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!trackFile) {
@@ -104,28 +116,89 @@ const Upload = () => {
       return;
     }
     
-    setIsUploading(true);
+    if (!user) {
+      toast.error('You must be logged in to upload tracks');
+      return;
+    }
     
-    // Simulate upload progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 10;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
+    setIsUploading(true);
+    setUploadProgress(0);
+    
+    try {
+      let coverUrl = '';
+      let fileUrl = '';
+      
+      // Upload cover image if provided
+      if (coverImage) {
+        const coverFileName = `${Date.now()}_${coverImage.name}`;
+        const { data: coverData, error: coverError } = await supabase.storage
+          .from('covers')
+          .upload(coverFileName, coverImage);
         
-        // Simulate processing delay
-        setTimeout(() => {
-          setIsUploading(false);
-          setUploadProgress(0);
-          toast.success('Track uploaded successfully!');
-          
-          // Navigate to profile
-          navigate('/profile');
-        }, 500);
+        if (coverError) {
+          throw new Error(`Error uploading cover: ${coverError.message}`);
+        }
+        
+        setUploadProgress(30);
+        
+        const { data: coverUrlData } = supabase.storage
+          .from('covers')
+          .getPublicUrl(coverFileName);
+        
+        coverUrl = coverUrlData.publicUrl;
       }
-      setUploadProgress(Math.min(progress, 100));
-    }, 300);
+      
+      setUploadProgress(50);
+      
+      // Upload audio file
+      const audioFileName = `${Date.now()}_${trackFile.name}`;
+      const { data: audioData, error: audioError } = await supabase.storage
+        .from('audio')
+        .upload(audioFileName, trackFile);
+      
+      if (audioError) {
+        throw new Error(`Error uploading audio: ${audioError.message}`);
+      }
+      
+      setUploadProgress(80);
+      
+      const { data: audioUrlData } = supabase.storage
+        .from('audio')
+        .getPublicUrl(audioFileName);
+      
+      fileUrl = audioUrlData.publicUrl;
+      
+      // Insert track record into database
+      const { data, error } = await supabase
+        .from('tracks')
+        .insert({
+          user_id: user.id,
+          title: trackTitle,
+          description: trackDescription,
+          genre,
+          file_url: fileUrl,
+          cover_url: coverUrl,
+          is_public: isPublic
+        });
+      
+      if (error) {
+        throw new Error(`Error creating track record: ${error.message}`);
+      }
+      
+      setUploadProgress(100);
+      toast.success('Track uploaded successfully!');
+      
+      // Navigate to profile after a short delay
+      setTimeout(() => {
+        navigate('/profile');
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Upload failed: ' + (error as Error).message);
+    } finally {
+      setIsUploading(false);
+    }
   };
   
   return (
@@ -344,7 +417,7 @@ const Upload = () => {
               <Button type="submit" disabled={isUploading} className="button-gradient">
                 {isUploading ? (
                   <span className="flex items-center">
-                    <UploadIcon className="mr-2 h-4 w-4 animate-pulse" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Uploading...
                   </span>
                 ) : (

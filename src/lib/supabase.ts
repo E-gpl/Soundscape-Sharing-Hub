@@ -14,15 +14,3 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 export const hasValidSupabaseCredentials = () => {
   return !!supabaseUrl && !!supabaseAnonKey;
 };
-
-// Helper function to display warning if credentials are missing
-export const checkSupabaseCredentials = () => {
-  if (!hasValidSupabaseCredentials()) {
-    toast.warning(
-      "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment to enable database functionality.",
-      { duration: 6000 }
-    );
-    return false;
-  }
-  return true;
-};
