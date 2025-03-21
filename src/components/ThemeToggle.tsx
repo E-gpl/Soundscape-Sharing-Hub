@@ -25,12 +25,12 @@ const ThemeToggle = ({
       <Toggle
         aria-label="Toggle theme"
         onClick={handleToggle}
-        className={`rounded-full p-2 ${size === 'sm' ? 'h-8 w-8' : size === 'lg' ? 'h-12 w-12' : 'h-10 w-10'}`}
+        className={`rounded-full p-2 ${size === 'sm' ? 'h-8 w-8' : size === 'lg' ? 'h-12 w-12' : 'h-10 w-10'} hover:bg-harmonic-200/50 dark:hover:bg-harmonic-800/50 transition-all duration-300`}
       >
         {theme === 'dark' ? (
-          <Sun className={`${size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-6 w-6' : 'h-5 w-5'} transition-all`} />
+          <Sun className={`${size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-6 w-6' : 'h-5 w-5'} transition-all text-yellow-400`} />
         ) : (
-          <Moon className={`${size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-6 w-6' : 'h-5 w-5'} transition-all`} />
+          <Moon className={`${size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-6 w-6' : 'h-5 w-5'} transition-all text-blue-500`} />
         )}
       </Toggle>
     );
@@ -41,13 +41,14 @@ const ThemeToggle = ({
       variant={variant === 'default' ? 'default' : 'outline'}
       size={size}
       onClick={handleToggle}
-      className="rounded-full"
+      className="rounded-full relative overflow-hidden group"
       aria-label="Toggle theme"
     >
+      <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-yellow-400 to-orange-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300 dark:from-blue-500 dark:to-purple-600"></span>
       {theme === 'dark' ? (
-        <Sun className={`${size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-6 w-6' : 'h-5 w-5'}`} />
+        <Sun className={`${size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-6 w-6' : 'h-5 w-5'} text-yellow-400`} />
       ) : (
-        <Moon className={`${size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-6 w-6' : 'h-5 w-5'}`} />
+        <Moon className={`${size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-6 w-6' : 'h-5 w-5'} text-blue-500`} />
       )}
     </Button>
   );

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import MusicPlayer from '@/components/MusicPlayer';
@@ -6,8 +7,9 @@ import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { checkSupabaseCredentials } from '@/lib/supabase';
-import ThemeToggle from '@/components/ThemeToggle';
 import { useTheme } from '@/contexts/ThemeContext';
+import FeaturedArtists from '@/components/FeaturedArtists';
+import NewReleases from '@/components/NewReleases';
 
 const Index = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -101,13 +103,6 @@ const Index = () => {
               </Button>
             )}
           </div>
-          
-          <div className="mt-10 flex justify-center">
-            <div className="glass-card p-4 inline-flex items-center gap-3">
-              <span className="text-sm font-medium">Toggle Theme</span>
-              <ThemeToggle size="lg" variant="default" />
-            </div>
-          </div>
         </div>
         
         <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-opacity duration-500 ${
@@ -131,6 +126,12 @@ const Index = () => {
           </div>
         </div>
       </section>
+      
+      {/* New Releases Section */}
+      <NewReleases />
+      
+      {/* Featured Artists Section */}
+      <FeaturedArtists />
       
       {/* Content Sections */}
       <div className="bg-gradient-to-b from-harmonic-100 to-white dark:from-harmonic-900 dark:to-harmonic-800">
