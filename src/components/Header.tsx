@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Search, User, Upload, Menu, X, LogOut } from 'lucide-react';
 import SearchBar from './SearchBar';
 import { useAuth } from '@/contexts/AuthContext';
+import ThemeToggle from './ThemeToggle';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -56,6 +57,8 @@ const Header = () => {
             <SearchBar />
           </div>
           
+          <ThemeToggle variant="subtle" size="sm" />
+          
           {isAuthenticated ? (
             <div className="flex items-center space-x-4">
               <Link to="/profile">
@@ -86,16 +89,20 @@ const Header = () => {
           )}
         </div>
         
-        <button 
-          className="md:hidden focus:outline-none"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
+        <div className="md:hidden flex items-center space-x-3">
+          <ThemeToggle variant="subtle" size="sm" />
+          
+          <button 
+            className="focus:outline-none"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
+        </div>
       </div>
       
       {/* Mobile menu */}

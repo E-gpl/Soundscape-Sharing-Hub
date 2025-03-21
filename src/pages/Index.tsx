@@ -6,11 +6,14 @@ import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { checkSupabaseCredentials } from '@/lib/supabase';
+import ThemeToggle from '@/components/ThemeToggle';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Index = () => {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { theme } = useTheme();
   
   useEffect(() => {
     // Check if Supabase credentials are valid on initial load
@@ -97,6 +100,13 @@ const Index = () => {
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             )}
+          </div>
+          
+          <div className="mt-10 flex justify-center">
+            <div className="glass-card p-4 inline-flex items-center gap-3">
+              <span className="text-sm font-medium">Toggle Theme</span>
+              <ThemeToggle size="lg" variant="default" />
+            </div>
           </div>
         </div>
         
