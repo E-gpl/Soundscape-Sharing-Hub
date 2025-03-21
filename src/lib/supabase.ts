@@ -3,20 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types';
 import { toast } from 'sonner';
 
-// Get Supabase URL and anonymous key from environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Check if environment variables exist
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase credentials. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
-}
+// Use the credentials from your connected Supabase project
+const supabaseUrl = "https://znsjwpxngsbxunduadsy.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpuc2p3cHhuZ3NieHVuZHVhZHN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI1ODExOTIsImV4cCI6MjA1ODE1NzE5Mn0.xSET8LBr6AZagcru_H_IP0IAiiCEkLk3MBshJb9ee9g";
 
 // Create and export Supabase client
-export const supabase = createClient<Database>(
-  supabaseUrl || 'https://your-project-url.supabase.co',
-  supabaseAnonKey || 'your-anon-key'
-);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 // Helper function to check if valid Supabase credentials exist
 export const hasValidSupabaseCredentials = () => {

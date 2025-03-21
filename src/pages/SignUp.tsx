@@ -16,11 +16,12 @@ import {
   Apple,
   Facebook,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { checkSupabaseCredentials } from '@/lib/supabase';
+import { hasValidSupabaseCredentials } from '@/lib/supabase';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -32,10 +33,34 @@ const SignUp = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasCredentials, setHasCredentials] = useState(true);
+  const [connectionChecked, setConnectionChecked] = useState(false);
   
+  // Check if Supabase connection is valid on component mount
   useEffect(() => {
-    // Check if Supabase credentials are available
-    setHasCredentials(checkSupabaseCredentials());
+    const checkConnection = async () => {
+      try {
+        const isValid = hasValidSupabaseCredentials();
+        setHasCredentials(isValid);
+        
+        if (isValid) {
+          // Try a simple query to test the connection
+          const { error } = await import('@/integrations/supabase/client')
+            .then(({ supabase }) => supabase.from('artists').select('count', { count: 'exact', head: true }));
+          
+          if (error) {
+            console.error('Supabase connection test failed:', error);
+            setHasCredentials(false);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking Supabase connection:', error);
+        setHasCredentials(false);
+      } finally {
+        setConnectionChecked(true);
+      }
+    };
+    
+    checkConnection();
   }, []);
   
   // Redirect if already authenticated
@@ -49,7 +74,7 @@ const SignUp = () => {
     e.preventDefault();
     
     if (!hasCredentials) {
-      toast.error('无法连接到数据库。请确保已设置 Supabase 凭据。');
+      toast.error('未能连接到数据库。请确保已设置 Supabase 凭据。');
       return;
     }
     
@@ -73,10 +98,12 @@ const SignUp = () => {
     try {
       const success = await register(name, email, password);
       if (success) {
+        toast.success('账号创建成功！');
         navigate('/profile');
       }
     } catch (error) {
       console.error('Registration error:', error);
+      toast.error('注册失败，请稍后重试');
     } finally {
       setLoading(false);
     }
@@ -104,13 +131,25 @@ const SignUp = () => {
           <p className="text-harmonic-500">今天加入 Harmonic 社区</p>
         </div>
         
-        {!hasCredentials && (
-          <div className="mb-6 p-4 border border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg flex items-start space-x-3">
-            <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+        {!hasCredentials && connectionChecked && (
+          <div className="mb-6 p-4 border border-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-start space-x-3">
+            <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
             <div>
-              <h3 className="font-medium text-yellow-700 dark:text-yellow-400">数据库连接问题</h3>
-              <p className="text-sm text-yellow-600 dark:text-yellow-300">
-                未能连接到 Supabase 数据库。这是演示模式，账户创建功能有限。
+              <h3 className="font-medium text-red-700 dark:text-red-400">数据库连接问题</h3>
+              <p className="text-sm text-red-600 dark:text-red-300">
+                未能连接到 Supabase 数据库。这是演示模式，账户创建功能有限。系统已配置 Supabase 凭据，但可能需要刷新页面或检查控制台错误日志。
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {hasCredentials && connectionChecked && (
+          <div className="mb-6 p-4 border border-green-400 bg-green-50 dark:bg-green-900/20 rounded-lg flex items-start space-x-3">
+            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-green-700 dark:text-green-400">数据库连接成功</h3>
+              <p className="text-sm text-green-600 dark:text-green-300">
+                已成功连接到 Supabase 数据库。您可以正常创建账户和使用所有功能。
               </p>
             </div>
           </div>
@@ -204,7 +243,7 @@ const SignUp = () => {
             <Button 
               type="submit" 
               className="w-full button-gradient"
-              disabled={loading || !hasCredentials}
+              disabled={loading || !hasCredentials || !connectionChecked}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
