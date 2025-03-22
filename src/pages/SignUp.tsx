@@ -15,7 +15,8 @@ import {
   Github,
   Apple,
   Facebook,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +31,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Redirect if already authenticated
   useEffect(() => {
@@ -40,23 +42,28 @@ const SignUp = () => {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (!hasValidSupabaseCredentials()) {
+      setError('Could not connect to database. Please check Supabase credentials.');
       toast.error('Could not connect to database. Please check Supabase credentials.');
       return;
     }
     
     if (!name || !email || !password) {
+      setError('Please fill in all fields');
       toast.error('Please fill in all fields');
       return;
     }
     
     if (!acceptTerms) {
+      setError('You must accept the terms and privacy policy');
       toast.error('You must accept the terms and privacy policy');
       return;
     }
     
     if (password.length < 8) {
+      setError('Password must be at least 8 characters');
       toast.error('Password must be at least 8 characters');
       return;
     }
@@ -69,9 +76,10 @@ const SignUp = () => {
         toast.success('Account created successfully!');
         navigate('/profile');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      toast.error('Registration failed, please try again');
+      setError(error.message || 'Registration failed, please try again');
+      toast.error(`Registration failed: ${error.message || 'Please try again'}`);
     } finally {
       setLoading(false);
     }
@@ -100,6 +108,13 @@ const SignUp = () => {
         </div>
         
         <div className="bg-white dark:bg-harmonic-800 rounded-xl shadow-sm border border-harmonic-200 dark:border-harmonic-700 p-6 md:p-8">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-red-700 dark:text-red-400 text-sm flex items-start">
+              <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+              <p>{error}</p>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>

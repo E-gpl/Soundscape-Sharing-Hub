@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types/models';
 import { toast } from 'sonner';
@@ -23,11 +22,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    // Initialize auth state
     const initAuth = async () => {
       setIsLoading(true);
       
-      // Get current session
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
       
@@ -35,7 +32,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await fetchUserProfile(data.session.user.id);
       }
       
-      // Listen for auth changes
       const { data: { subscription } } = await supabase.auth.onAuthStateChange(
         async (event, newSession) => {
           setSession(newSession);
@@ -50,7 +46,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       setIsLoading(false);
       
-      // Cleanup subscription on unmount
       return () => {
         subscription.unsubscribe();
       };
@@ -121,13 +116,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // 1. Create auth user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            name
+          }
+        }
       });
       
       if (error) {
+        console.error('Auth signup error:', error);
         toast.error(error.message);
         return false;
       }
@@ -137,7 +137,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // 2. Create user profile
       const username = email.split('@')[0];
       const { error: profileError } = await supabase
         .from('profiles')
@@ -152,9 +151,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         toast.error(`Failed to create user profile: ${profileError.message}`);
         return false;
       }
-      
-      // 3. Fetch the created profile
-      await fetchUserProfile(data.user.id);
       
       toast.success('Account created successfully! Please check your email to confirm your account.');
       return true;
@@ -201,7 +197,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // Update local user state
       setUser({ ...user, ...userData });
       toast.success('Profile updated successfully!');
       return true;
