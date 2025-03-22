@@ -16,7 +16,8 @@ import {
   Apple,
   Facebook,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  Info
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,11 +33,12 @@ const SignUp = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/profile');
+      navigate('/');
     }
   }, [isAuthenticated, navigate]);
   
@@ -73,8 +75,8 @@ const SignUp = () => {
     try {
       const success = await register(name, email, password);
       if (success) {
-        toast.success('Account created successfully!');
-        navigate('/profile');
+        setRegistrationSuccess(true);
+        toast.success('Account created successfully! Please check your email to confirm your account before signing in.');
       }
     } catch (error: any) {
       console.error('Registration error:', error);
@@ -108,138 +110,164 @@ const SignUp = () => {
         </div>
         
         <div className="bg-white dark:bg-harmonic-800 rounded-xl shadow-sm border border-harmonic-200 dark:border-harmonic-700 p-6 md:p-8">
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-red-700 dark:text-red-400 text-sm flex items-start">
-              <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
-              <p>{error}</p>
-            </div>
-          )}
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="pl-10"
-                  required
-                />
+          {registrationSuccess ? (
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 mb-4">
+                <Info className="h-6 w-6" />
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
-                  required
-                  minLength={8}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-3 text-harmonic-500 hover:text-harmonic-800"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-              <p className="text-xs text-harmonic-500">
-                Password must be at least 8 characters
+              <h2 className="text-2xl font-bold mb-2">Email Verification Required</h2>
+              <p className="text-harmonic-500 mb-4">
+                We've sent a verification email to <strong>{email}</strong>. 
+                Please check your inbox and click the verification link to complete your registration.
               </p>
+              <p className="text-harmonic-500 mb-6">
+                After verifying your email, you will be able to sign in to your account.
+              </p>
+              <Link to="/sign-in">
+                <Button className="w-full">Go to Sign In</Button>
+              </Link>
             </div>
-            
-            <div className="flex items-center space-x-2">
-              <input
-                id="terms"
-                type="checkbox"
-                checked={acceptTerms}
-                onChange={(e) => setAcceptTerms(e.target.checked)}
-                className="rounded border-harmonic-300 text-accent2 focus:ring-accent2"
-              />
-              <Label htmlFor="terms" className="text-sm cursor-pointer">
-                I accept the{' '}
-                <Link to="/terms" className="text-accent2 hover:underline">
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link to="/privacy" className="text-accent2 hover:underline">
-                  Privacy Policy
-                </Link>
-              </Label>
-            </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full button-gradient"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-                  Creating Account...
-                </span>
-              ) : (
-                <span className="flex items-center justify-center">
-                  Create Account
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </span>
+          ) : (
+            <>
+              {error && (
+                <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-red-700 dark:text-red-400 text-sm flex items-start">
+                  <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                  <p>{error}</p>
+                </div>
               )}
-            </Button>
-          </form>
-          
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator />
+              
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder=""
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder=""
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder=""
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-3 text-harmonic-500 hover:text-harmonic-800"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-harmonic-500">
+                    Password must be at least 8 characters
+                  </p>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="terms"
+                    type="checkbox"
+                    checked={acceptTerms}
+                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    className="rounded border-harmonic-300 text-accent2 focus:ring-accent2"
+                  />
+                  <Label htmlFor="terms" className="text-sm cursor-pointer">
+                    I accept the{' '}
+                    <Link to="/terms" className="text-accent2 hover:underline">
+                      Terms of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link to="/privacy" className="text-accent2 hover:underline">
+                      Privacy Policy
+                    </Link>
+                  </Label>
+                </div>
+                
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-md text-blue-700 dark:text-blue-400 text-sm flex items-start">
+                  <Info className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                  <p>After registration, you will need to verify your email address before you can sign in.</p>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full button-gradient"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center">
+                      <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
+                      Creating Account...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center">
+                      Create Account
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </span>
+                  )}
+                </Button>
+              </form>
+              
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <Separator />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white dark:bg-harmonic-800 px-2 text-harmonic-500">Or continue with</span>
+                  </div>
+                </div>
+                
+                <div className="mt-6 grid grid-cols-3 gap-3">
+                  <Button variant="outline" className="w-full" disabled>
+                    <Github className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" className="w-full" disabled>
+                    <Apple className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" className="w-full" disabled>
+                    <Facebook className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-harmonic-800 px-2 text-harmonic-500">Or continue with</span>
-              </div>
-            </div>
-            
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              <Button variant="outline" className="w-full" disabled>
-                <Github className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" className="w-full" disabled>
-                <Apple className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" className="w-full" disabled>
-                <Facebook className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+            </>
+          )}
         </div>
         
         <div className="text-center mt-6">

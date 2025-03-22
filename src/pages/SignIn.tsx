@@ -30,7 +30,7 @@ const SignIn = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/profile');
+      navigate('/');
     }
   }, [isAuthenticated, navigate]);
   
@@ -47,7 +47,7 @@ const SignIn = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        navigate('/profile');
+        navigate('/');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -87,7 +87,7 @@ const SignIn = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder=""
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -108,7 +108,7 @@ const SignIn = () => {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder=""
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
