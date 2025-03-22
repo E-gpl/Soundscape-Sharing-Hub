@@ -29,34 +29,36 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <React.StrictMode>
       <ThemeProvider>
         <AuthProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/browse" element={<Navigate to="/search" replace />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/artist/:id" element={<Artist />} />
-              <Route path="/sign-in" element={<SignIn />} />
-              <Route path="/sign-up" element={<SignUp />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/upload" element={<Upload />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/help" element={<Help />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/documentation" element={<Documentation />} />
-              <Route path="/upload-guides" element={<UploadGuides />} />
-              <Route path="/account-help" element={<AccountHelp />} />
-              <Route path="/support-ticket" element={<SupportTicket />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Router>
-          <Toaster />
+          <QueryClientProvider client={queryClient}>
+            <Router>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/browse" element={<Navigate to="/search" replace />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/artist/:id" element={<Artist />} />
+                <Route path="/sign-in" element={<SignIn />} />
+                <Route path="/sign-up" element={<SignUp />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/upload" element={<Upload />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/help" element={<Help />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/documentation" element={<Documentation />} />
+                <Route path="/upload-guides" element={<UploadGuides />} />
+                <Route path="/account-help" element={<AccountHelp />} />
+                <Route path="/support-ticket" element={<SupportTicket />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Router>
+            <Toaster />
+          </QueryClientProvider>
         </AuthProvider>
       </ThemeProvider>
-    </QueryClientProvider>
+    </React.StrictMode>
   );
 }
 
