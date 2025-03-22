@@ -149,8 +149,8 @@ const Contact = () => {
                       <Mail className="h-5 w-5 text-accent1 mt-1 mr-3" />
                       <div>
                         <p className="font-medium">Email Us</p>
-                        <a href="mailto:support@harmonic.example.com" className="text-harmonic-600 dark:text-harmonic-300 hover:text-accent1 transition-colors">
-                          support@harmonic.example.com
+                        <a href="mailto:lhy3453069@gmail.com" className="text-harmonic-600 dark:text-harmonic-300 hover:text-accent1 transition-colors">
+                          lhy3453069@gmail.com
                         </a>
                       </div>
                     </div>
@@ -159,9 +159,9 @@ const Contact = () => {
                       <Phone className="h-5 w-5 text-accent2 mt-1 mr-3" />
                       <div>
                         <p className="font-medium">Call Us</p>
-                        <a href="tel:+15551234567" className="text-harmonic-600 dark:text-harmonic-300 hover:text-accent2 transition-colors">
-                          +1 (555) 123-4567
-                        </a>
+                        <p className="text-harmonic-600 dark:text-harmonic-300">
+                          Contact via email
+                        </p>
                       </div>
                     </div>
                     
@@ -170,9 +170,8 @@ const Contact = () => {
                       <div>
                         <p className="font-medium">Location</p>
                         <p className="text-harmonic-600 dark:text-harmonic-300">
-                          123 Music Avenue<br />
-                          San Francisco, CA 94107<br />
-                          United States
+                          University of Auckland<br />
+                          Auckland, New Zealand
                         </p>
                       </div>
                     </div>
@@ -180,11 +179,10 @@ const Contact = () => {
                     <div className="flex items-start">
                       <Clock className="h-5 w-5 text-purple-500 mt-1 mr-3" />
                       <div>
-                        <p className="font-medium">Business Hours</p>
+                        <p className="font-medium">Available Hours</p>
                         <p className="text-harmonic-600 dark:text-harmonic-300">
-                          Monday - Friday: 9:00 AM - 6:00 PM<br />
-                          Saturday: 10:00 AM - 4:00 PM<br />
-                          Sunday: Closed
+                          Monday - Friday: 9:00 AM - 5:00 PM<br />
+                          Weekend: Closed
                         </p>
                       </div>
                     </div>
@@ -192,9 +190,9 @@ const Contact = () => {
                 </div>
                 
                 <div className="glass-card p-8 rounded-xl">
-                  <h2 className="text-xl font-semibold mb-6">Follow Us</h2>
+                  <h2 className="text-xl font-semibold mb-6">About the Creators</h2>
                   <p className="text-harmonic-600 dark:text-harmonic-300 mb-4">
-                    Stay connected with us on social media for the latest updates, news, and community events.
+                    Developed by Jonathan and Rexstartingup, Harmonic is a platform dedicated to connecting music lovers with artists around the world.
                   </p>
                   <div className="flex space-x-4">
                     <a href="#" className="bg-harmonic-200 dark:bg-harmonic-800 w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent1 hover:text-white transition-colors">

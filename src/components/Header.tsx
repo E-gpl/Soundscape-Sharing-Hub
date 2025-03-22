@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
   NavigationMenuTrigger,
+  NavigationMenuLink,
 } from '@/components/ui/navigation-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -73,19 +73,15 @@ const Header = () => {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/browse" className="px-4 py-2 hover:text-accent1 transition-colors">
-                    Browse
-                  </Link>
-                </NavigationMenuLink>
+                <Link to="/browse" className="px-4 py-2 hover:text-accent1 transition-colors">
+                  Browse
+                </Link>
               </NavigationMenuItem>
               
               <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/search" className="px-4 py-2 hover:text-accent1 transition-colors">
-                    Search
-                  </Link>
-                </NavigationMenuLink>
+                <Link to="/search" className="px-4 py-2 hover:text-accent1 transition-colors">
+                  Search
+                </Link>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
@@ -238,8 +234,5 @@ const Header = () => {
     </header>
   );
 };
-
-// Import the NavigationMenuLink component
-const { NavigationMenuLink } = NavigationMenu;
 
 export default Header;

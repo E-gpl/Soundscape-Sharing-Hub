@@ -118,13 +118,14 @@ const Privacy = () => {
                 <section>
                   <h2 className="text-2xl font-semibold mb-4">8. Contact Us</h2>
                   <p className="text-harmonic-600 dark:text-harmonic-300 mb-4">
-                    If you have questions or comments about this policy, you may email us at privacy@harmonic.example.com or 
+                    If you have questions or comments about this policy, you may email us at lhy3453069@gmail.com or 
                     contact us via our contact form.
                   </p>
                 </section>
                 
                 <div className="text-sm text-harmonic-500 pt-4 border-t border-harmonic-200 dark:border-harmonic-700">
                   <p>Last updated: March 21, 2025</p>
+                  <p className="mt-1">Created by Jonathan and Rexstartingup</p>
                 </div>
               </div>
             </ScrollArea>
