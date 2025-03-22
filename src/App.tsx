@@ -1,13 +1,12 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 
 // Import pages
-import Browse from './pages/Browse';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import Search from './pages/Search';
@@ -20,6 +19,10 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Help from './pages/Help';
 import Contact from './pages/Contact';
+import Documentation from './pages/Documentation';
+import UploadGuides from './pages/UploadGuides';
+import AccountHelp from './pages/AccountHelp';
+import SupportTicket from './pages/SupportTicket';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -32,7 +35,7 @@ function App() {
           <Router>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/browse" element={<Browse />} />
+              <Route path="/browse" element={<Navigate to="/search" replace />} />
               <Route path="/search" element={<Search />} />
               <Route path="/artist/:id" element={<Artist />} />
               <Route path="/sign-in" element={<SignIn />} />
@@ -43,6 +46,10 @@ function App() {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/help" element={<Help />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/documentation" element={<Documentation />} />
+              <Route path="/upload-guides" element={<UploadGuides />} />
+              <Route path="/account-help" element={<AccountHelp />} />
+              <Route path="/support-ticket" element={<SupportTicket />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>

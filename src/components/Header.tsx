@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ import {
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/contexts/AuthContext';
+import SearchBar from './SearchBar';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -73,14 +75,13 @@ const Header = () => {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <Link to="/browse" className="px-4 py-2 hover:text-accent1 transition-colors">
-                  Browse
-                </Link>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
                 <Link to="/search" className="px-4 py-2 hover:text-accent1 transition-colors">
                   Search
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link to="/help" className="px-4 py-2 hover:text-accent1 transition-colors">
+                  Help
                 </Link>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -89,12 +90,7 @@ const Header = () => {
 
         {/* Right Side - Auth/User Menu */}
         <div className="flex items-center space-x-3">
-          <Link 
-            to="/search"
-            className="p-2 text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors"
-          >
-            <SearchIcon className="h-5 w-5" />
-          </Link>
+          <SearchBar />
           
           <ThemeToggle />
           
@@ -157,16 +153,16 @@ const Header = () => {
                 <div className="grid gap-6 py-6">
                   <div className="space-y-3">
                     <Link
-                      to="/browse"
-                      className="block px-2 py-1 text-lg"
-                    >
-                      Browse
-                    </Link>
-                    <Link
                       to="/search"
                       className="block px-2 py-1 text-lg"
                     >
                       Search
+                    </Link>
+                    <Link
+                      to="/help"
+                      className="block px-2 py-1 text-lg"
+                    >
+                      Help
                     </Link>
                   </div>
                   

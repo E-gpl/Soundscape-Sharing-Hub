@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Mail, Phone, MapPin, MessageSquare, Send, Clock } from 'lucide-react';
+import { Mail, MapPin, MessageSquare, Send } from 'lucide-react';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -28,6 +28,13 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Form validation
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     // Simulate API call
@@ -156,33 +163,12 @@ const Contact = () => {
                     </div>
                     
                     <div className="flex items-start">
-                      <Phone className="h-5 w-5 text-accent2 mt-1 mr-3" />
-                      <div>
-                        <p className="font-medium">Call Us</p>
-                        <p className="text-harmonic-600 dark:text-harmonic-300">
-                          Contact via email
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
                       <MapPin className="h-5 w-5 text-blue-500 mt-1 mr-3" />
                       <div>
                         <p className="font-medium">Location</p>
                         <p className="text-harmonic-600 dark:text-harmonic-300">
                           University of Auckland<br />
                           Auckland, New Zealand
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
-                      <Clock className="h-5 w-5 text-purple-500 mt-1 mr-3" />
-                      <div>
-                        <p className="font-medium">Available Hours</p>
-                        <p className="text-harmonic-600 dark:text-harmonic-300">
-                          Monday - Friday: 9:00 AM - 5:00 PM<br />
-                          Weekend: Closed
                         </p>
                       </div>
                     </div>

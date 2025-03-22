@@ -12,9 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Search, Music, Upload, UserCircle, HelpCircle, FileText, Play, PlusCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Help = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +43,7 @@ const Help = () => {
     },
     {
       question: "How can I contact support?",
-      answer: "For support inquiries, please visit our Contact page or email us directly at support@harmonic.example.com. Our support team is available Monday through Friday, 9AM to 6PM ET."
+      answer: "For support inquiries, please visit our Contact page or email us directly at lhy3453069@gmail.com. Our support team is available Monday through Friday, 9AM to 6PM ET."
     }
   ];
   
@@ -71,7 +73,7 @@ const Help = () => {
   const listenerFaqs = [
     {
       question: "How do I find new music?",
-      answer: "Discover new music through our Browse page, which features curated playlists, trending tracks, and new releases. You can also use the Search function to find specific artists or genres, or let our recommendation engine suggest music based on your listening history."
+      answer: "Discover new music through our Search page, which features curated playlists, trending tracks, and new releases. You can also use the Search function to find specific artists or genres, or let our recommendation engine suggest music based on your listening history."
     },
     {
       question: "Can I create playlists?",
@@ -195,7 +197,13 @@ const Help = () => {
                 <p className="text-harmonic-500 mb-4">
                   Explore our comprehensive guides and tutorials for both artists and listeners.
                 </p>
-                <Button variant="outline" className="w-full">View Documents</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate('/documentation')}
+                >
+                  View Documents
+                </Button>
               </div>
               
               <div className="glass-card p-6 rounded-xl text-center hover-scale">
@@ -206,7 +214,13 @@ const Help = () => {
                 <p className="text-harmonic-500 mb-4">
                   Learn how to upload and manage your music with our step-by-step tutorials.
                 </p>
-                <Button variant="outline" className="w-full">View Guides</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate('/upload-guides')}
+                >
+                  View Guides
+                </Button>
               </div>
               
               <div className="glass-card p-6 rounded-xl text-center hover-scale">
@@ -217,7 +231,13 @@ const Help = () => {
                 <p className="text-harmonic-500 mb-4">
                   Get assistance with account settings, privacy, and security features.
                 </p>
-                <Button variant="outline" className="w-full">Get Help</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate('/account-help')}
+                >
+                  Get Help
+                </Button>
               </div>
             </div>
             
@@ -227,7 +247,12 @@ const Help = () => {
                 If you couldn't find the answer you were looking for, our support team is here to help.
                 Reach out and we'll get back to you as soon as possible.
               </p>
-              <Button className="button-gradient">Contact Support</Button>
+              <Button 
+                className="button-gradient"
+                onClick={() => navigate('/support-ticket')}
+              >
+                Contact Support
+              </Button>
             </div>
           </div>
         </div>
