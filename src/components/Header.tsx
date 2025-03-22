@@ -65,27 +65,22 @@ const Header = () => {
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerBackground}`}>
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center">
-          <span className="text-2xl font-bold">Harmonic</span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-1">
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <Link to="/search" className="px-4 py-2 hover:text-accent1 transition-colors">
-                  Search
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link to="/help" className="px-4 py-2 hover:text-accent1 transition-colors">
-                  Help
-                </Link>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+        {/* Logo and Navigation Links */}
+        <div className="flex items-center space-x-6">
+          {/* Logo */}
+          <Link to="/" className="flex items-center">
+            <span className="text-2xl font-bold">Harmonic</span>
+          </Link>
+          
+          {/* Desktop Navigation - Moved next to the logo */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Link to="/search" className="px-4 py-2 hover:text-accent1 transition-colors">
+              Search
+            </Link>
+            <Link to="/help" className="px-4 py-2 hover:text-accent1 transition-colors">
+              Help
+            </Link>
+          </div>
         </div>
 
         {/* Right Side - Auth/User Menu */}

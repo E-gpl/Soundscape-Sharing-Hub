@@ -149,18 +149,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (profileError) {
         console.error('Error creating profile:', profileError);
-        toast.error('Failed to create user profile');
+        toast.error(`Failed to create user profile: ${profileError.message}`);
         return false;
       }
       
       // 3. Fetch the created profile
       await fetchUserProfile(data.user.id);
       
-      toast.success('Registered successfully!');
+      toast.success('Account created successfully! Please check your email to confirm your account.');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      toast.error('Registration failed. Please try again.');
+      toast.error(`Registration failed: ${error.message || 'Please try again'}`);
       return false;
     } finally {
       setIsLoading(false);
