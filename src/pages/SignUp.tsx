@@ -76,7 +76,7 @@ const SignUp = () => {
       const success = await register(name, email, password);
       if (success) {
         setRegistrationSuccess(true);
-        toast.success('Account created successfully! Please check your email to confirm your account before signing in.');
+        console.log('Registration successful, showing verification message');
       }
     } catch (error: any) {
       console.error('Registration error:', error);
@@ -123,6 +123,10 @@ const SignUp = () => {
               <p className="text-harmonic-500 mb-6">
                 After verifying your email, you will be able to sign in to your account.
               </p>
+              <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-md p-3 mb-4 text-blue-700 dark:text-blue-400 text-sm flex items-start">
+                <Info className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                <p>If you don't see the email within a few minutes, please check your spam folder or contact support for assistance.</p>
+              </div>
               <Link to="/sign-in">
                 <Button className="w-full">Go to Sign In</Button>
               </Link>

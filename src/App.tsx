@@ -14,6 +14,7 @@ import Artist from './pages/Artist';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Profile from './pages/Profile';
+import UserProfile from './pages/UserProfile';
 import Upload from './pages/Upload';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
@@ -40,7 +41,8 @@ function App() {
               <Route path="/artist/:id" element={<Artist />} />
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<UserProfile />} />
+              <Route path="/artist-profile" element={<Profile />} />
               <Route path="/upload" element={<Upload />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />

@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       const { data: { subscription } } = await supabase.auth.onAuthStateChange(
         async (event, newSession) => {
+          console.log('Auth state changed:', event, newSession?.user?.id);
           setSession(newSession);
           
           if (event === 'SIGNED_IN' && newSession?.user) {
@@ -57,6 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const fetchUserProfile = async (userId: string) => {
     try {
+      console.log('Fetching user profile for ID:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -69,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       if (data) {
+        console.log('Profile data retrieved:', data);
         setUser({
           id: data.id,
           name: data.name,
@@ -79,6 +82,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           location: data.location || undefined,
           website: data.website || undefined,
         });
+      } else {
+        console.log('No profile found for user:', userId);
       }
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
@@ -153,6 +158,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (profileError) {
         console.error('Error creating profile:', profileError);
+        // If the profile already exists, we can consider this a success as it might be
+        // from a previous registration attempt
+        if (profileError.code === '23505') { // Unique violation error code
+          toast.success('Account created successfully! Please check your email to confirm your account.');
+          return true;
+        }
         toast.error(`Failed to create user profile: ${profileError.message}`);
         return false;
       }
