@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types/models';
 import { toast } from 'sonner';
@@ -60,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching user profile:', error);
@@ -116,6 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
+      // First sign up the user with Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -136,8 +138,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         toast.error('Registration failed. Please try again.');
         return false;
       }
-      
+
+      // Create a username from the email (before the @ symbol)
       const username = email.split('@')[0];
+      
+      // Insert the profile with RLS enabled (this is the part that was failing)
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Search, User, HelpCircle } from 'lucide-react';
+import { Menu, X, Search, User, HelpCircle, LogOut } from 'lucide-react';
 import { 
   NavigationMenu,
   NavigationMenuContent,
@@ -14,6 +14,15 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import SearchBar from '@/components/SearchBar';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,10 +32,15 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { setTheme } = useTheme();
   const isMobile = useIsMobile();
-  const { isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setMobileMenuOpen(false);
   };
   
   return (
@@ -37,7 +51,7 @@ const Header = () => {
             <span className="font-bold text-xl">Harmonic</span>
           </Link>
           
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="flex items-center space-x-1">
             <Link 
               to="/search" 
               className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -62,21 +76,39 @@ const Header = () => {
             <ThemeToggle />
             
             {isAuthenticated ? (
-              <>
-                <Link to="/profile">
-                  <Button variant="outline" size="sm" className="gap-1.5">
-                    <User className="h-4 w-4" />
-                    Profile
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={user?.avatar || ''} alt={user?.name || 'User'} />
+                      <AvatarFallback className="bg-accent2/10 text-accent2">
+                        {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                      </AvatarFallback>
+                    </Avatar>
                   </Button>
-                </Link>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={logout}
-                >
-                  Sign Out
-                </Button>
-              </>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user?.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        @{user?.username}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={logout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Link to="/sign-in">
@@ -131,6 +163,18 @@ const Header = () => {
             
             {isAuthenticated ? (
               <>
+                <div className="flex items-center gap-3 px-3 py-2">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user?.avatar || ''} alt={user?.name || 'User'} />
+                    <AvatarFallback className="bg-accent2/10 text-accent2">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground">@{user?.username}</p>
+                  </div>
+                </div>
                 <Link 
                   to="/profile"
                   className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
@@ -142,12 +186,10 @@ const Header = () => {
                 <Button 
                   variant="ghost" 
                   className="justify-start px-3"
-                  onClick={() => {
-                    logout();
-                    setMobileMenuOpen(false);
-                  }}
+                  onClick={handleLogout}
                 >
-                  Sign Out
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Log Out
                 </Button>
               </>
             ) : (

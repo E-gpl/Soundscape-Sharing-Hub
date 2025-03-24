@@ -144,7 +144,7 @@ const SignUp = () => {
                     <Input
                       id="name"
                       type="text"
-                      placeholder=""
+                      placeholder="Your full name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="pl-10"
@@ -160,7 +160,7 @@ const SignUp = () => {
                     <Input
                       id="email"
                       type="email"
-                      placeholder=""
+                      placeholder="your.email@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10"
@@ -176,7 +176,7 @@ const SignUp = () => {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder=""
+                      placeholder="Create a strong password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10"
@@ -222,7 +222,7 @@ const SignUp = () => {
                 
                 <div className="p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-md text-blue-700 dark:text-blue-400 text-sm flex items-start">
                   <Info className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
-                  <p>After registration, you will need to verify your email address before you can sign in.</p>
+                  <p>After registration, you will need to verify your email address before you can sign in. An email will be sent to your inbox with verification instructions.</p>
                 </div>
                 
                 <Button 
