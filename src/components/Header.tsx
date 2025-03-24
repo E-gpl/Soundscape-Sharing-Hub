@@ -80,7 +80,7 @@ const Header = () => {
         </div>
 
         {isMobile && menuOpen && (
-          <nav className="absolute top-16 left-0 w-full bg-background border-b p-4">
+          <nav className="absolute top-16 left-0 w-full bg-background border-b p-4 z-50">
             <Link
               to="/"
               className={`${
@@ -103,6 +103,31 @@ const Header = () => {
             >
               Browse
             </Link>
+            {isAuthenticated && (
+              <>
+                <Link
+                  to="/profile"
+                  className="hover:text-foreground transition-colors block py-2 text-muted-foreground"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Profile
+                </Link>
+                <Link
+                  to="/upload"
+                  className="hover:text-foreground transition-colors block py-2 text-muted-foreground"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Upload Music
+                </Link>
+                <Link
+                  to="/settings"
+                  className="hover:text-foreground transition-colors block py-2 text-muted-foreground"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Settings
+                </Link>
+              </>
+            )}
           </nav>
         )}
 
