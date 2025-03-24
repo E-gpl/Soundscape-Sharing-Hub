@@ -14,7 +14,8 @@ import {
   Github,
   Apple,
   Facebook,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,6 +27,7 @@ const SignIn = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Redirect if already authenticated
   useEffect(() => {
@@ -36,8 +38,10 @@ const SignIn = () => {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (!email || !password) {
+      setError('Please fill in all fields');
       toast.error('Please fill in all fields');
       return;
     }
@@ -49,8 +53,10 @@ const SignIn = () => {
       if (success) {
         navigate('/');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      setError(error.message || 'Login failed, please try again');
+      toast.error(`Login failed: ${error.message || 'Please try again'}`);
     } finally {
       setLoading(false);
     }
@@ -79,6 +85,13 @@ const SignIn = () => {
         </div>
         
         <div className="bg-white dark:bg-harmonic-800 rounded-xl shadow-sm border border-harmonic-200 dark:border-harmonic-700 p-6 md:p-8">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-red-700 dark:text-red-400 text-sm flex items-start">
+              <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+              <p>{error}</p>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -87,7 +100,7 @@ const SignIn = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder=""
+                  placeholder="your.email@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -108,7 +121,7 @@ const SignIn = () => {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder=""
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"

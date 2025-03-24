@@ -34,7 +34,9 @@ const UserMenu = () => {
       <DropdownMenuTrigger asChild>
         <button className="focus:outline-none">
           <Avatar className="h-8 w-8 border border-harmonic-200 dark:border-harmonic-700 cursor-pointer hover:opacity-80 transition-opacity">
-            <AvatarImage src={user.avatar} alt={user.name} />
+            {user.avatar ? (
+              <AvatarImage src={user.avatar} alt={user.name || 'User'} />
+            ) : null}
             <AvatarFallback className="bg-accent2 text-white text-sm">
               {initials}
             </AvatarFallback>
