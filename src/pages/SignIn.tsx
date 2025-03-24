@@ -51,7 +51,9 @@ const SignIn = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        navigate('/');
+        toast.success('Login successful!');
+        // Force navigation to home page
+        navigate('/', { replace: true });
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -68,6 +70,12 @@ const SignIn = () => {
         <Loader2 className="h-8 w-8 animate-spin text-harmonic-500" />
       </div>
     );
+  }
+  
+  if (isAuthenticated) {
+    // This is a fallback in case the useEffect doesn't redirect
+    navigate('/');
+    return null;
   }
   
   return (

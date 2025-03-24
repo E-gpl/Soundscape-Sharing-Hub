@@ -8,6 +8,13 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import SearchBar from './SearchBar';
 import { useAuth } from '@/contexts/AuthContext';
 import UserMenu from './UserMenu';
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
 
 const Header = () => {
   const isMobile = useIsMobile();
@@ -25,7 +32,7 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           {isMobile && (
             <Button
               variant="ghost"
@@ -37,28 +44,50 @@ const Header = () => {
               <span className="sr-only">Toggle menu</span>
             </Button>
           )}
+          
           <Link to="/" className="text-2xl font-bold">
             Harmonic
           </Link>
+          
+          {!isMobile && (
+            <NavigationMenu className="ml-4">
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <Link to="/">
+                    <NavigationMenuLink 
+                      className={navigationMenuTriggerStyle({ 
+                        className: isHomePage ? "font-medium text-foreground" : "text-muted-foreground" 
+                      })}
+                    >
+                      Home
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link to="/search">
+                    <NavigationMenuLink 
+                      className={navigationMenuTriggerStyle({ 
+                        className: isSearchPage ? "font-medium text-foreground" : "text-muted-foreground" 
+                      })}
+                    >
+                      Browse
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          )}
         </div>
 
-        {(!isMobile || menuOpen) && (
-          <nav
-            className={`${
-              isMobile
-                ? 'absolute top-16 left-0 w-full bg-background border-b p-4'
-                : 'flex gap-4 ml-4'
-            }`}
-          >
+        {isMobile && menuOpen && (
+          <nav className="absolute top-16 left-0 w-full bg-background border-b p-4">
             <Link
               to="/"
               className={`${
                 isHomePage
                   ? 'font-medium text-foreground'
                   : 'text-muted-foreground'
-              } hover:text-foreground transition-colors ${
-                isMobile ? 'block py-2' : ''
-              }`}
+              } hover:text-foreground transition-colors block py-2`}
               onClick={() => setMenuOpen(false)}
             >
               Home
@@ -69,9 +98,7 @@ const Header = () => {
                 isSearchPage
                   ? 'font-medium text-foreground'
                   : 'text-muted-foreground'
-              } hover:text-foreground transition-colors ${
-                isMobile ? 'block py-2' : ''
-              }`}
+              } hover:text-foreground transition-colors block py-2`}
               onClick={() => setMenuOpen(false)}
             >
               Browse

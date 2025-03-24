@@ -84,6 +84,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
       } else {
         console.log('No profile found for user:', userId);
+        // If no profile exists, create a default one
+        const userMetadata = session?.user?.user_metadata;
+        if (session?.user) {
+          const defaultUsername = session.user.email?.split('@')[0] || 'user';
+          const defaultName = userMetadata?.name || defaultUsername;
+          
+          const newProfile = {
+            id: userId,
+            name: defaultName,
+            username: defaultUsername,
+          };
+          
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert(newProfile);
+            
+          if (insertError) {
+            console.error('Error creating default profile:', insertError);
+          } else {
+            setUser({
+              id: userId,
+              name: defaultName,
+              username: defaultUsername,
+            });
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
@@ -110,7 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
       toast.error('Login failed. Please try again.');
       return false;
@@ -147,7 +173,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Create a username from the email (before the @ symbol)
       const username = email.split('@')[0];
       
-      // Insert the profile with RLS enabled (this is the part that was failing)
+      // Insert the profile with RLS enabled
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({

@@ -1,5 +1,15 @@
 
 project_id = "znsjwpxngsbxunduadsy"
 
+[auth.email]
+enable_confirmations = false
+
+[auth.redirect]
+allow_list = ["http://localhost:3000/*", "http://localhost:5173/*", "https://znsjwpxngsbxunduadsy.supabase.co/*"]
+
+[site]
+site_url = "http://localhost:5173"
+redirect_url = "http://localhost:5173"
+
 [storage]
 profiles = { public = true }
