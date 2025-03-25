@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -45,6 +44,8 @@ const Header = () => {
   const isUploadPage = location.pathname === '/upload';
   const isProfilePage = location.pathname === '/profile';
   const isSettingsPage = location.pathname === '/settings';
+
+  const userEmail = user?.user_metadata?.email || user?.email || '';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
@@ -149,7 +150,7 @@ const Header = () => {
                   onClick={() => setMenuOpen(false)}
                 >
                   <div className="h-4 w-4 rounded-full bg-primary/20 flex items-center justify-center">
-                    {user?.email?.charAt(0).toUpperCase() || 'U'}
+                    {userEmail.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <span>Profile</span>
                 </Link>

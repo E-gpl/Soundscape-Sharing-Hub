@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -92,6 +91,10 @@ const UserProfile = () => {
       </div>
     );
   }
+  
+  const userEmail = user?.user_metadata?.email || user?.email || '';
+  const createdAt = user?.created_at || user?.user_metadata?.created_at || new Date().toISOString();
+  const emailConfirmedAt = user?.email_confirmed_at || user?.user_metadata?.email_confirmed_at || null;
   
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'User';
   const joinedDate = user?.created_at ? formatDistanceToNow(new Date(user.email_confirmed_at || user.created_at), { addSuffix: true }) : 'Recently';

@@ -100,18 +100,18 @@ const Upload = () => {
       // 1. Upload audio file
       const audioFileName = `${user.id}-${Date.now()}-${audioFile.name}`;
       
+      setUploadProgress(10); // Start progress
+      
       const { data: audioData, error: audioError } = await supabase.storage
         .from('music')
         .upload(audioFileName, audioFile, {
           cacheControl: '3600',
-          upsert: false,
-          onUploadProgress: (progress) => {
-            const percent = Math.round((progress.loaded / progress.total) * 50);
-            setUploadProgress(percent); // First 50% of progress
-          }
+          upsert: false
         });
       
       if (audioError) throw audioError;
+      
+      setUploadProgress(50); // Audio uploaded
       
       const { data: audioUrl } = supabase.storage
         .from('music')
@@ -126,14 +126,12 @@ const Upload = () => {
           .from('covers')
           .upload(coverFileName, coverFile, {
             cacheControl: '3600',
-            upsert: false,
-            onUploadProgress: (progress) => {
-              const percent = 50 + Math.round((progress.loaded / progress.total) * 40);
-              setUploadProgress(percent); // Next 40% of progress
-            }
+            upsert: false
           });
         
         if (coverError) throw coverError;
+        
+        setUploadProgress(75); // Cover uploaded
         
         const { data: coverUrlData } = supabase.storage
           .from('covers')
@@ -143,7 +141,7 @@ const Upload = () => {
       }
       
       // 3. Create track entry in database
-      setUploadProgress(90); // Next 10% of progress
+      setUploadProgress(90); // Almost done
       
       const { data: track, error: trackError } = await supabase
         .from('tracks')

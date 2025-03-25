@@ -48,7 +48,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ onLogout }) => {
     }
   }, [user]);
   
-  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'User';
+  // Get user's email from user.user_metadata.email (Supabase v2 structure)
+  const userEmail = user?.user_metadata?.email || user?.email || '';
+  const displayName = profile?.display_name || userEmail.split('@')[0] || 'User';
   const avatarUrl = profile?.avatar_url || '';
   const initials = displayName.substring(0, 2).toUpperCase();
   
@@ -67,7 +69,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ onLogout }) => {
           <div className="flex flex-col">
             <span className="font-medium">{displayName}</span>
             <span className="text-xs text-muted-foreground truncate">
-              {user?.email}
+              {userEmail}
             </span>
           </div>
         </DropdownMenuLabel>

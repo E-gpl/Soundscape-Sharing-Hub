@@ -7,8 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
-import NewReleases from '@/components/NewReleases';
-import FeaturedArtists from '@/components/FeaturedArtists';
 
 const Index = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -125,12 +123,6 @@ const Index = () => {
       
       {/* Content Sections */}
       <div className="bg-gradient-to-b from-harmonic-100 to-white dark:from-harmonic-900 dark:to-harmonic-800">
-        {/* New Releases Section */}
-        <NewReleases />
-        
-        {/* Featured Artists Section */}
-        <FeaturedArtists />
-        
         {/* Features Section */}
         <section className="py-16 relative">
           <div className="container px-4 md:px-6">
@@ -213,7 +205,7 @@ const Index = () => {
                   <div className="absolute -top-6 -left-6 w-64 h-64 bg-accent1/10 rounded-full filter blur-3xl animate-pulse-slow"></div>
                   <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-accent2/10 rounded-full filter blur-3xl animate-pulse-slow animation-delay-2000"></div>
                   <img 
-                    src="/lovable-uploads/62655e0e-aa83-49b8-a0ef-7615b1fb6688.png" 
+                    src="/lovable-uploads/dd877477-2d07-41ac-83e9-6f57f3fec427.png" 
                     alt="Person listening to music" 
                     className="rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-auto"
                   />
