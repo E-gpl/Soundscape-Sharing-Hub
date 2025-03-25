@@ -1,225 +1,271 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Upload, Settings, BarChart4, Music, Headphones, ListMusic, CalendarDays, Clock, User, Mail, Heart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/lib/supabase';
-import { Music, Users, Clock, Calendar, LinkIcon, Edit, Loader2 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import TrackCard from '@/components/TrackCard';
+import { Skeleton } from '@/components/ui/skeleton';
+import Image from '@/components/ui/image';
 
 const UserProfile = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<any>(null);
-  const [userTracks, setUserTracks] = useState([]);
-  const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [tracks, setTracks] = useState<any[]>([]);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [isLoadingTracks, setIsLoadingTracks] = useState(true);
   
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !isAuthenticated) {
       navigate('/sign-in');
-      return;
     }
-    
-    const fetchProfileAndTracks = async () => {
-      setLoading(true);
-      try {
-        // Fetch profile data
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-          
-        if (profileError && profileError.code !== 'PGRST116') {
-          throw profileError;
+  }, [isLoading, isAuthenticated, navigate]);
+  
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.id) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching user profile:', error);
+          } else {
+            setUserProfile(data);
+          }
+        } catch (err) {
+          console.error('Failed to fetch user profile:', err);
+        } finally {
+          setIsLoadingProfile(false);
         }
-        
-        // Fetch user's tracks
-        const { data: tracksData, error: tracksError } = await supabase
-          .from('tracks')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-          
-        if (tracksError) {
-          throw tracksError;
-        }
-        
-        // Format tracks data
-        const formattedTracks = tracksData?.map(track => ({
-          id: track.id,
-          title: track.title || 'Untitled',
-          artist: profileData?.display_name || user.email?.split('@')[0] || 'You',
-          artistId: user.id,
-          cover: track.cover_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop',
-          duration: track.duration || 180,
-          playCount: track.play_count || 0
-        })) || [];
-        
-        setProfile(profileData || { id: user.id });
-        setUserTracks(formattedTracks);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
       }
     };
     
-    fetchProfileAndTracks();
-  }, [user, navigate]);
+    const fetchUserTracks = async () => {
+      if (user?.id) {
+        try {
+          const { data, error } = await supabase
+            .from('tracks')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+            
+          if (error) {
+            console.error('Error fetching user tracks:', error);
+          } else {
+            setTracks(data || []);
+          }
+        } catch (err) {
+          console.error('Failed to fetch user tracks:', err);
+        } finally {
+          setIsLoadingTracks(false);
+        }
+      }
+    };
+    
+    if (user) {
+      fetchUserProfile();
+      fetchUserTracks();
+    }
+  }, [user]);
   
-  const handlePlay = (trackId: string) => {
-    setPlayingTrackId(trackId);
-  };
-  
-  const handlePause = () => {
-    setPlayingTrackId(null);
-  };
-  
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen">
         <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <div className="container py-16 px-4 md:px-6">
+          <div className="flex justify-center">
+            <Skeleton className="h-8 w-48" />
+          </div>
         </div>
       </div>
     );
   }
   
-  const userEmail = user?.user_metadata?.email || user?.email || '';
-  const createdAt = user?.created_at || user?.user_metadata?.created_at || new Date().toISOString();
-  const emailConfirmedAt = user?.email_confirmed_at || user?.user_metadata?.email_confirmed_at || null;
+  // Safe access to user data
+  const userEmail = user?.email || '';
+  const userCreatedAt = user?.created_at ? new Date(user.created_at) : new Date();
+  const userConfirmedAt = user?.email_confirmed_at ? new Date(user.email_confirmed_at) : null;
   
-  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'User';
-  const joinedDate = user?.created_at ? formatDistanceToNow(new Date(user.email_confirmed_at || user.created_at), { addSuffix: true }) : 'Recently';
+  const displayName = userProfile?.display_name || userEmail.split('@')[0] || 'User';
+  const joinDate = format(userCreatedAt, 'MMMM yyyy');
+  const memberDuration = userConfirmedAt 
+    ? `Member since ${format(userConfirmedAt, 'MMMM yyyy')}`
+    : `Joined ${format(userCreatedAt, 'MMMM yyyy')}`;
+    
+  const avatarUrl = userProfile?.avatar_url || '';
   
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-1 pt-24 pb-32">
-        <div className="container px-4 md:px-6 animate-fade-in">
-          {/* Profile Header */}
-          <div className="relative mb-12">
-            <div className="h-40 bg-gradient-to-r from-accent1/30 to-accent2/30 rounded-lg"></div>
-            <div className="absolute -bottom-16 left-8 flex items-end">
-              <Avatar className="h-28 w-28 border-4 border-background">
-                <AvatarImage src={profile?.avatar_url} alt={displayName} />
-                <AvatarFallback className="text-3xl">{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
-            </div>
-            <div className="absolute bottom-4 right-4">
-              <Button variant="outline" size="sm" onClick={() => navigate('/settings')}>
-                <Edit className="h-4 w-4 mr-1" />
-                Edit Profile
-              </Button>
-            </div>
-          </div>
-          
-          {/* Profile Info */}
-          <div className="mt-16 pl-8 mb-8">
-            <h1 className="text-3xl font-bold">{displayName}</h1>
-            <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
-              <div className="flex items-center">
-                <Music className="h-4 w-4 mr-1" />
-                <span>{userTracks.length} {userTracks.length === 1 ? 'Track' : 'Tracks'}</span>
+        <div className="container px-4 md:px-6">
+          <div className="mb-12">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-8">
+              <div className="flex-shrink-0">
+                <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+                  <AvatarImage src={avatarUrl} alt={displayName} />
+                  <AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
               </div>
-              <div className="flex items-center">
-                <Users className="h-4 w-4 mr-1" />
-                <span>{profile?.followers || 0} {profile?.followers === 1 ? 'Follower' : 'Followers'}</span>
+              
+              <div className="flex-1">
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">{displayName}</h1>
+                <div className="flex flex-wrap gap-x-4 gap-y-2 items-center text-harmonic-500 text-sm mb-4">
+                  <div className="flex items-center gap-1">
+                    <User className="h-4 w-4 opacity-70" />
+                    <span>{memberDuration}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Mail className="h-4 w-4 opacity-70" />
+                    <span>{userEmail}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>Joined {joinedDate}</span>
-              </div>
-              {profile?.website && (
-                <a 
-                  href={profile.website.startsWith('http') ? profile.website : `https://${profile.website}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center hover:text-foreground transition-colors"
+              
+              <div className="mt-4 sm:mt-0 flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="gap-1"
+                  onClick={() => navigate('/upload')}
                 >
-                  <LinkIcon className="h-4 w-4 mr-1" />
-                  <span>Website</span>
-                </a>
-              )}
+                  <Upload className="h-4 w-4" />
+                  <span>Upload</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="gap-1"
+                  onClick={() => navigate('/settings')}
+                >
+                  <Settings className="h-4 w-4" />
+                  <span>Settings</span>
+                </Button>
+              </div>
             </div>
-            {profile?.bio && (
-              <p className="mt-4 max-w-3xl text-muted-foreground">{profile.bio}</p>
-            )}
           </div>
           
-          {/* Tabs Content */}
-          <Tabs defaultValue="tracks" className="mt-12">
+          <Tabs defaultValue="tracks" className="w-full">
             <TabsList className="mb-8">
-              <TabsTrigger value="tracks">Tracks</TabsTrigger>
-              <TabsTrigger value="liked">Liked</TabsTrigger>
-              <TabsTrigger value="playlists">Playlists</TabsTrigger>
+              <TabsTrigger value="tracks">
+                <Music className="h-4 w-4 mr-2" />
+                My Tracks
+              </TabsTrigger>
+              <TabsTrigger value="favorites">
+                <Heart className="h-4 w-4 mr-2" />
+                Favorites
+              </TabsTrigger>
+              <TabsTrigger value="stats">
+                <BarChart4 className="h-4 w-4 mr-2" />
+                Stats
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="tracks" className="space-y-8">
-              {userTracks.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {userTracks.map(track => (
-                    <TrackCard 
-                      key={track.id} 
-                      track={track}
-                      isCurrentlyPlaying={playingTrackId === track.id}
-                      onPlay={() => handlePlay(track.id)}
-                      onPause={handlePause}
-                    />
-                  ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {isLoadingTracks ? (
+                  Array(4).fill(0).map((_, i) => (
+                    <Card key={i} className="overflow-hidden">
+                      <div className="aspect-square bg-harmonic-100 dark:bg-harmonic-800 animate-pulse" />
+                      <div className="p-4 space-y-2">
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                    </Card>
+                  ))
+                ) : tracks.length > 0 ? (
+                  tracks.map((track) => (
+                    <Card key={track.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                      <div className="aspect-square relative group">
+                        <Image 
+                          src={track.cover_url || '/placeholder.svg'} 
+                          alt={track.title} 
+                          className="w-full h-full object-cover"
+                          aspectRatio="square"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Button size="icon" variant="secondary" className="h-12 w-12 rounded-full">
+                            <Play className="h-6 w-6" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold">{track.title}</h3>
+                        <p className="text-sm text-harmonic-500">{
+                          new Date(track.created_at).toLocaleDateString()
+                        }</p>
+                      </div>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="col-span-full py-16 text-center">
+                    <div className="max-w-md mx-auto">
+                      <Music className="h-12 w-12 mx-auto text-harmonic-400 mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">No tracks yet</h3>
+                      <p className="text-harmonic-500 mb-6">
+                        You haven't uploaded any tracks yet. Start sharing your music with the world.
+                      </p>
+                      <Button onClick={() => navigate('/upload')}>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload Music
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="favorites" className="space-y-8">
+              <div className="py-16 text-center">
+                <div className="max-w-md mx-auto">
+                  <Heart className="h-12 w-12 mx-auto text-harmonic-400 mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No favorites yet</h3>
+                  <p className="text-harmonic-500 mb-6">
+                    You haven't added any tracks to your favorites yet. Start exploring music to find your favorites.
+                  </p>
+                  <Button onClick={() => navigate('/search')}>
+                    <Headphones className="h-4 w-4 mr-2" />
+                    Explore Music
+                  </Button>
                 </div>
-              ) : (
-                <Card className="bg-muted/50">
-                  <CardContent className="py-10 text-center">
-                    <Music className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-xl font-semibold mb-2">No tracks yet</h3>
-                    <p className="text-muted-foreground mb-6">
-                      You haven't uploaded any music yet. Start sharing your sound with the world!
-                    </p>
-                    <Button onClick={() => navigate('/upload')}>
-                      Upload Music
-                    </Button>
-                  </CardContent>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="stats" className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <Music className="h-8 w-8 text-accent1 mb-4" />
+                    <h3 className="text-3xl font-bold mb-1">{tracks.length}</h3>
+                    <p className="text-harmonic-500">Tracks Uploaded</p>
+                  </div>
                 </Card>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="liked">
-              <Card className="bg-muted/50">
-                <CardContent className="py-10 text-center">
-                  <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-xl font-semibold mb-2">No liked tracks</h3>
-                  <p className="text-muted-foreground mb-6">
-                    You haven't liked any tracks yet. Explore music to find tracks you enjoy!
-                  </p>
-                  <Button onClick={() => navigate('/search')}>
-                    Browse Music
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="playlists">
-              <Card className="bg-muted/50">
-                <CardContent className="py-10 text-center">
-                  <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-xl font-semibold mb-2">No playlists yet</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Create playlists to organize your favorite tracks
-                  </p>
-                  <Button onClick={() => navigate('/search')}>
-                    Create Playlist
-                  </Button>
-                </CardContent>
-              </Card>
+                
+                <Card className="p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <Headphones className="h-8 w-8 text-accent2 mb-4" />
+                    <h3 className="text-3xl font-bold mb-1">0</h3>
+                    <p className="text-harmonic-500">Total Plays</p>
+                  </div>
+                </Card>
+                
+                <Card className="p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <Heart className="h-8 w-8 text-red-500 mb-4" />
+                    <h3 className="text-3xl font-bold mb-1">0</h3>
+                    <p className="text-harmonic-500">Favorites</p>
+                  </div>
+                </Card>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

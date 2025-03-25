@@ -48,8 +48,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ onLogout }) => {
     }
   }, [user]);
   
-  // Get user's email from user.user_metadata.email (Supabase v2 structure)
-  const userEmail = user?.user_metadata?.email || user?.email || '';
+  // Get user's email safely
+  const userEmail = user?.email || '';
   const displayName = profile?.display_name || userEmail.split('@')[0] || 'User';
   const avatarUrl = profile?.avatar_url || '';
   const initials = displayName.substring(0, 2).toUpperCase();

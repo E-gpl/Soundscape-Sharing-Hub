@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -45,7 +46,8 @@ const Header = () => {
   const isProfilePage = location.pathname === '/profile';
   const isSettingsPage = location.pathname === '/settings';
 
-  const userEmail = user?.user_metadata?.email || user?.email || '';
+  // Get email safely using optional chaining
+  const userEmail = user?.email || '';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
@@ -71,39 +73,36 @@ const Header = () => {
             <NavigationMenu className="ml-4">
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <Link to="/">
-                    <NavigationMenuLink 
-                      className={navigationMenuTriggerStyle({ 
-                        className: isHomePage ? "font-medium text-foreground" : "text-muted-foreground" 
-                      })}
-                    >
-                      Home
-                    </NavigationMenuLink>
-                  </Link>
+                  <NavigationMenuLink 
+                    asChild
+                    className={navigationMenuTriggerStyle({ 
+                      className: isHomePage ? "font-medium text-foreground" : "text-muted-foreground" 
+                    })}
+                  >
+                    <Link to="/">Home</Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link to="/search">
-                    <NavigationMenuLink 
-                      className={navigationMenuTriggerStyle({ 
-                        className: isSearchPage ? "font-medium text-foreground" : "text-muted-foreground" 
-                      })}
-                    >
-                      Browse
-                    </NavigationMenuLink>
-                  </Link>
+                  <NavigationMenuLink 
+                    asChild
+                    className={navigationMenuTriggerStyle({ 
+                      className: isSearchPage ? "font-medium text-foreground" : "text-muted-foreground" 
+                    })}
+                  >
+                    <Link to="/search">Browse</Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 {isAuthenticated && (
                   <>
                     <NavigationMenuItem>
-                      <Link to="/upload">
-                        <NavigationMenuLink 
-                          className={navigationMenuTriggerStyle({ 
-                            className: isUploadPage ? "font-medium text-foreground" : "text-muted-foreground" 
-                          })}
-                        >
-                          Upload
-                        </NavigationMenuLink>
-                      </Link>
+                      <NavigationMenuLink 
+                        asChild
+                        className={navigationMenuTriggerStyle({ 
+                          className: isUploadPage ? "font-medium text-foreground" : "text-muted-foreground" 
+                        })}
+                      >
+                        <Link to="/upload">Upload</Link>
+                      </NavigationMenuLink>
                     </NavigationMenuItem>
                   </>
                 )}

@@ -25,6 +25,9 @@ import UploadGuides from './pages/UploadGuides';
 import AccountHelp from './pages/AccountHelp';
 import SupportTicket from './pages/SupportTicket';
 
+// Import type definitions
+import './types/auth.d.ts';
+
 // Create a client
 const queryClient = new QueryClient();
 

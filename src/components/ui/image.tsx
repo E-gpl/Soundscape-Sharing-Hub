@@ -1,0 +1,57 @@
+
+import React, { useState } from 'react';
+import { handleImageError } from '@/lib/image-helper';
+
+interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+  fallbackSrc?: string;
+  aspectRatio?: 'auto' | 'square' | '16:9' | '4:3' | '1:1';
+}
+
+const Image: React.FC<ImageProps> = ({
+  src,
+  alt,
+  className,
+  fallbackSrc = '/placeholder.svg',
+  aspectRatio = 'auto',
+  ...props
+}) => {
+  const [loaded, setLoaded] = useState(false);
+  
+  const aspectRatioClasses = {
+    'auto': '',
+    'square': 'aspect-square',
+    '16:9': 'aspect-video',
+    '4:3': 'aspect-4/3',
+    '1:1': 'aspect-square'
+  };
+  
+  return (
+    <div className={`relative overflow-hidden ${aspectRatioClasses[aspectRatio]}`}>
+      {!loaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-harmonic-100 dark:bg-harmonic-800 animate-pulse">
+          <svg className="w-8 h-8 text-harmonic-400" viewBox="0 0 24 24" fill="none">
+            <path 
+              d="M12 4V2M12 20v2M4 12H2M20 12h2M17.7 17.7l1.4 1.4M17.7 6.3l1.4-1.4M6.3 17.7l-1.4 1.4M6.3 6.3L4.9 4.9" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+      )}
+      <img
+        src={src || fallbackSrc}
+        alt={alt || 'Image'}
+        onLoad={() => setLoaded(true)}
+        onError={(e) => {
+          handleImageError(e, fallbackSrc);
+          setLoaded(true);
+        }}
+        className={`w-full h-full object-cover ${!loaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300 ${className || ''}`}
+        {...props}
+      />
+    </div>
+  );
+};
+
+export default Image;

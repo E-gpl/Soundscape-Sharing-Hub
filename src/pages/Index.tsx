@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
+import Image from '@/components/ui/image';
 
 const Index = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -204,10 +204,12 @@ const Index = () => {
                 <div className="relative">
                   <div className="absolute -top-6 -left-6 w-64 h-64 bg-accent1/10 rounded-full filter blur-3xl animate-pulse-slow"></div>
                   <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-accent2/10 rounded-full filter blur-3xl animate-pulse-slow animation-delay-2000"></div>
-                  <img 
-                    src="/lovable-uploads/dd877477-2d07-41ac-83e9-6f57f3fec427.png" 
+                  <Image 
+                    src="/lovable-uploads/caa5c93b-2dd0-427d-a20a-44dcec81d73d.png" 
                     alt="Person listening to music" 
                     className="rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-auto"
+                    fallbackSrc="/placeholder.svg"
+                    aspectRatio="16:9"
                   />
                 </div>
               </div>
@@ -274,3 +276,4 @@ const Index = () => {
 };
 
 export default Index;
+
