@@ -2,202 +2,191 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
-import MusicPlayer from '@/components/MusicPlayer';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Upload as UploadIcon, 
-  Image as ImageIcon, 
-  Music,
-  Check,
-  AlertCircle,
-  X,
-  Loader2
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
+import { Upload as UploadIcon, Music, Image, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+
+const GENRES = [
+  "Electronic", "Pop", "Hip Hop", "R&B", "Rock", 
+  "Jazz", "Classical", "Ambient", "Indie", "Folk"
+];
 
 const Upload = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
-  const [trackTitle, setTrackTitle] = useState('');
-  const [trackDescription, setTrackDescription] = useState('');
+  
+  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [genre, setGenre] = useState('');
-  const [isPublic, setIsPublic] = useState(true);
-  
-  const [trackFile, setTrackFile] = useState<File | null>(null);
-  const [trackPreview, setTrackPreview] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  
-  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   
-  const trackInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   
-  // Redirect if not authenticated
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/sign-in');
-    }
-  }, [isAuthenticated, navigate]);
-  
-  const handleTrackUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
+  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      
+      // Check file type (audio)
       if (!file.type.startsWith('audio/')) {
         toast.error('Please select an audio file');
         return;
       }
       
-      setTrackFile(file);
-      
-      // Create URL for audio preview
-      const url = URL.createObjectURL(file);
-      setTrackPreview(url);
-      
-      // Auto-fill title from filename
-      if (!trackTitle) {
-        const fileName = file.name.replace(/\.[^/.]+$/, "");
-        setTrackTitle(fileName);
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('File size must be under 10MB');
+        return;
       }
+      
+      setAudioFile(file);
     }
   };
   
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      
+      // Check file type (image)
       if (!file.type.startsWith('image/')) {
         toast.error('Please select an image file');
         return;
       }
       
-      setCoverImage(file);
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Image size must be under 2MB');
+        return;
+      }
       
-      // Create URL for image preview
-      const url = URL.createObjectURL(file);
-      setCoverPreview(url);
-    }
-  };
-  
-  const removeTrack = () => {
-    setTrackFile(null);
-    setTrackPreview(null);
-    if (trackInputRef.current) {
-      trackInputRef.current.value = '';
-    }
-  };
-  
-  const removeCover = () => {
-    setCoverImage(null);
-    setCoverPreview(null);
-    if (imageInputRef.current) {
-      imageInputRef.current.value = '';
+      setCoverFile(file);
+      
+      // Create a preview URL
+      const objectUrl = URL.createObjectURL(file);
+      setCoverPreview(objectUrl);
     }
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!trackFile) {
-      toast.error('Please upload an audio file');
-      return;
-    }
-    
-    if (!trackTitle) {
-      toast.error('Please enter a title for your track');
-      return;
-    }
-    
     if (!user) {
-      toast.error('You must be logged in to upload tracks');
+      toast.error('You must be logged in to upload music');
+      navigate('/sign-in');
       return;
     }
     
-    setIsUploading(true);
+    if (!title || !genre || !audioFile) {
+      toast.error('Please fill in all required fields and upload an audio file');
+      return;
+    }
+    
+    setLoading(true);
     setUploadProgress(0);
     
     try {
-      let coverUrl = '';
-      let fileUrl = '';
+      // 1. Upload audio file
+      const audioFileName = `${user.id}-${Date.now()}-${audioFile.name}`;
       
-      // Upload cover image if provided
-      if (coverImage) {
-        const coverFileName = `${Date.now()}_${coverImage.name}`;
+      const { data: audioData, error: audioError } = await supabase.storage
+        .from('music')
+        .upload(audioFileName, audioFile, {
+          cacheControl: '3600',
+          upsert: false,
+          onUploadProgress: (progress) => {
+            const percent = Math.round((progress.loaded / progress.total) * 50);
+            setUploadProgress(percent); // First 50% of progress
+          }
+        });
+      
+      if (audioError) throw audioError;
+      
+      const { data: audioUrl } = supabase.storage
+        .from('music')
+        .getPublicUrl(audioFileName);
+      
+      // 2. Upload cover image if provided
+      let coverUrl = null;
+      if (coverFile) {
+        const coverFileName = `${user.id}-${Date.now()}-${coverFile.name}`;
+        
         const { data: coverData, error: coverError } = await supabase.storage
           .from('covers')
-          .upload(coverFileName, coverImage);
+          .upload(coverFileName, coverFile, {
+            cacheControl: '3600',
+            upsert: false,
+            onUploadProgress: (progress) => {
+              const percent = 50 + Math.round((progress.loaded / progress.total) * 40);
+              setUploadProgress(percent); // Next 40% of progress
+            }
+          });
         
-        if (coverError) {
-          throw new Error(`Error uploading cover: ${coverError.message}`);
-        }
-        
-        setUploadProgress(30);
+        if (coverError) throw coverError;
         
         const { data: coverUrlData } = supabase.storage
           .from('covers')
           .getPublicUrl(coverFileName);
-        
+          
         coverUrl = coverUrlData.publicUrl;
       }
       
-      setUploadProgress(50);
+      // 3. Create track entry in database
+      setUploadProgress(90); // Next 10% of progress
       
-      // Upload audio file
-      const audioFileName = `${Date.now()}_${trackFile.name}`;
-      const { data: audioData, error: audioError } = await supabase.storage
-        .from('audio')
-        .upload(audioFileName, trackFile);
-      
-      if (audioError) {
-        throw new Error(`Error uploading audio: ${audioError.message}`);
-      }
-      
-      setUploadProgress(80);
-      
-      const { data: audioUrlData } = supabase.storage
-        .from('audio')
-        .getPublicUrl(audioFileName);
-      
-      fileUrl = audioUrlData.publicUrl;
-      
-      // Insert track record into database
-      const { data, error } = await supabase
+      const { data: track, error: trackError } = await supabase
         .from('tracks')
-        .insert({
-          user_id: user.id,
-          title: trackTitle,
-          description: trackDescription,
-          genre,
-          file_url: fileUrl,
-          cover_url: coverUrl,
-          is_public: isPublic
-        });
+        .insert([
+          {
+            title,
+            description,
+            genre,
+            audio_url: audioUrl.publicUrl,
+            cover_url: coverUrl,
+            user_id: user.id,
+            created_at: new Date().toISOString(),
+          }
+        ])
+        .select();
       
-      if (error) {
-        throw new Error(`Error creating track record: ${error.message}`);
-      }
+      if (trackError) throw trackError;
       
       setUploadProgress(100);
+      
       toast.success('Track uploaded successfully!');
       
-      // Navigate to profile after a short delay
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setGenre('');
+      setAudioFile(null);
+      setCoverFile(null);
+      setCoverPreview(null);
+      
+      if (audioInputRef.current) audioInputRef.current.value = '';
+      if (coverInputRef.current) coverInputRef.current.value = '';
+      
+      // Redirect to profile page
       setTimeout(() => {
         navigate('/profile');
-      }, 1000);
+      }, 1500);
       
     } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Upload failed: ' + (error as Error).message);
+      console.error('Error uploading track:', error);
+      toast.error('Failed to upload track. Please try again.');
     } finally {
-      setIsUploading(false);
+      setLoading(false);
     }
   };
   
@@ -205,234 +194,155 @@ const Upload = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 pt-24 pb-32">
-        <div className="container px-4 md:px-6 max-w-4xl animate-fade-in">
+      <main className="flex-1 pt-24 pb-12">
+        <div className="container px-4 md:px-6 animate-fade-in max-w-3xl">
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">Upload Your Music</h1>
-            <p className="text-harmonic-500">Share your creations with the world</p>
+            <p className="text-harmonic-500">Share your sound with listeners around the world</p>
           </div>
           
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Audio Upload */}
-            <div className="space-y-3">
-              <Label htmlFor="track-upload">Audio File</Label>
+          <Card>
+            <form onSubmit={handleSubmit}>
+              <CardHeader>
+                <CardTitle>Track Information</CardTitle>
+                <CardDescription>
+                  Fill in the details about your track to help listeners discover your music
+                </CardDescription>
+              </CardHeader>
               
-              {!trackFile ? (
-                <div 
-                  className="border-2 border-dashed border-harmonic-200 dark:border-harmonic-700 rounded-lg p-8 text-center hover:bg-harmonic-100 dark:hover:bg-harmonic-800/50 transition-colors cursor-pointer"
-                  onClick={() => trackInputRef.current?.click()}
-                >
-                  <input
-                    id="track-upload"
-                    type="file"
-                    accept="audio/*"
-                    className="hidden"
-                    ref={trackInputRef}
-                    onChange={handleTrackUpload}
-                  />
-                  
-                  <div className="flex flex-col items-center gap-2">
-                    <Music className="h-10 w-10 text-harmonic-400" />
-                    <h3 className="font-medium">Drag and drop your audio file</h3>
-                    <p className="text-sm text-harmonic-500">or click to browse</p>
-                    <p className="text-xs text-harmonic-400 mt-2">Supported formats: MP3, WAV, FLAC, M4A</p>
+              <CardContent className="space-y-6">
+                {/* Audio Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="audio">Audio File <span className="text-destructive">*</span></Label>
+                  <div className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => audioInputRef.current?.click()}>
+                    <Music className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <div className="text-lg font-medium">
+                      {audioFile ? audioFile.name : 'Drag & drop or click to upload'}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      MP3, WAV or OGG. Max 10MB.
+                    </p>
+                    <Input 
+                      id="audio" 
+                      ref={audioInputRef}
+                      type="file" 
+                      accept="audio/*" 
+                      className="hidden" 
+                      onChange={handleAudioChange} 
+                    />
                   </div>
                 </div>
-              ) : (
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-harmonic-100 dark:bg-harmonic-800 p-2 rounded-md">
-                          <Music className="h-6 w-6 text-harmonic-500" />
-                        </div>
-                        
-                        <div>
-                          <p className="font-medium">{trackFile.name}</p>
-                          <p className="text-xs text-harmonic-500">
-                            {(trackFile.size / (1024 * 1024)).toFixed(2)} MB
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        {trackPreview && (
-                          <audio
-                            controls
-                            src={trackPreview}
-                            className="h-8 w-40 md:w-60"
-                          />
-                        )}
-                        
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={removeTrack}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-            
-            {/* Cover Image */}
-            <div className="space-y-3">
-              <Label htmlFor="cover-upload">Cover Image</Label>
-              
-              {!coverImage ? (
-                <div 
-                  className="border-2 border-dashed border-harmonic-200 dark:border-harmonic-700 rounded-lg p-6 text-center hover:bg-harmonic-100 dark:hover:bg-harmonic-800/50 transition-colors cursor-pointer"
-                  onClick={() => imageInputRef.current?.click()}
-                >
-                  <input
-                    id="cover-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    ref={imageInputRef}
-                    onChange={handleImageUpload}
-                  />
-                  
-                  <div className="flex flex-col items-center gap-2">
-                    <ImageIcon className="h-8 w-8 text-harmonic-400" />
-                    <h3 className="font-medium">Add a cover image</h3>
-                    <p className="text-sm text-harmonic-500">Recommended size: 1400x1400px</p>
-                  </div>
-                </div>
-              ) : (
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        {coverPreview && (
-                          <img 
-                            src={coverPreview} 
-                            alt="Cover preview" 
-                            className="h-16 w-16 object-cover rounded-md"
-                          />
-                        )}
-                        
-                        <div>
-                          <p className="font-medium">{coverImage.name}</p>
-                          <p className="text-xs text-harmonic-500">
-                            {(coverImage.size / (1024 * 1024)).toFixed(2)} MB
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={removeCover}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-            
-            {/* Track Details */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  placeholder="Enter track title"
-                  value={trackTitle}
-                  onChange={(e) => setTrackTitle(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Describe your track..."
-                  rows={4}
-                  value={trackDescription}
-                  onChange={(e) => setTrackDescription(e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="genre">Genre</Label>
-                <select
-                  id="genre"
-                  value={genre}
-                  onChange={(e) => setGenre(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value="electronic">Electronic</option>
-                  <option value="pop">Pop</option>
-                  <option value="hip-hop">Hip Hop</option>
-                  <option value="rock">Rock</option>
-                  <option value="jazz">Jazz</option>
-                  <option value="classical">Classical</option>
-                  <option value="ambient">Ambient</option>
-                  <option value="indie">Indie</option>
-                  <option value="folk">Folk</option>
-                </select>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <input
-                  id="public"
-                  type="checkbox"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                  className="rounded border-harmonic-300 text-accent2 focus:ring-accent2"
-                />
-                <Label htmlFor="public" className="cursor-pointer">Make track public</Label>
-              </div>
-            </div>
-            
-            {isUploading && (
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Uploading...</span>
-                  <span>{Math.round(uploadProgress)}%</span>
-                </div>
-                <div className="w-full bg-harmonic-200 dark:bg-harmonic-700 rounded-full h-2">
+                
+                {/* Cover Image Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="cover">Cover Image</Label>
                   <div 
-                    className="bg-accent1 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
+                    className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer flex flex-col items-center justify-center h-48" 
+                    onClick={() => coverInputRef.current?.click()}
+                    style={{
+                      backgroundImage: coverPreview ? `url(${coverPreview})` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
+                  >
+                    {!coverPreview && (
+                      <>
+                        <Image className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                        <div className="text-lg font-medium">
+                          Upload cover image
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          JPG, PNG or GIF. Max 2MB.
+                        </p>
+                      </>
+                    )}
+                    <Input 
+                      id="cover" 
+                      ref={coverInputRef}
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handleCoverChange} 
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-            
-            <div className="flex justify-end space-x-3">
-              <Button type="button" variant="outline" onClick={() => navigate(-1)}>
-                Cancel
-              </Button>
+                
+                <Separator />
+                
+                {/* Track Details */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Title <span className="text-destructive">*</span></Label>
+                    <Input 
+                      id="title" 
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Name your track"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea 
+                      id="description" 
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Tell listeners about your music (optional)"
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="genre">Genre <span className="text-destructive">*</span></Label>
+                    <Select value={genre} onValueChange={setGenre} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a genre" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GENRES.map((g) => (
+                          <SelectItem key={g} value={g}>{g}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                {/* Info Notice */}
+                <div className="bg-muted p-4 rounded-lg flex gap-3">
+                  <AlertCircle className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium mb-1">Important Information</p>
+                    <p>
+                      By uploading, you confirm that your sounds comply with our Terms of Use and you don't infringe anyone else's rights.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
               
-              <Button type="submit" disabled={isUploading} className="button-gradient">
-                {isUploading ? (
-                  <span className="flex items-center">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Uploading...
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <UploadIcon className="mr-2 h-4 w-4" />
-                    Upload Track
-                  </span>
-                )}
-              </Button>
-            </div>
-          </form>
+              <CardFooter className="flex justify-end">
+                <Button 
+                  type="submit" 
+                  disabled={loading || !title || !genre || !audioFile}
+                  className="min-w-32"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {uploadProgress < 100 ? `${uploadProgress}%` : 'Processing...'}
+                    </>
+                  ) : (
+                    <>
+                      <UploadIcon className="h-4 w-4 mr-2" />
+                      Upload Track
+                    </>
+                  )}
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
         </div>
       </main>
-      
-      <MusicPlayer />
     </div>
   );
 };

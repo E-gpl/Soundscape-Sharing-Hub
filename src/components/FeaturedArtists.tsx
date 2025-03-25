@@ -4,18 +4,77 @@ import { useNavigate } from 'react-router-dom';
 import ArtistCard from './ArtistCard';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Loader2 } from 'lucide-react';
-import { useArtists } from '@/services/api';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
+
+// Fetcher function for artists
+const fetchArtists = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, display_name, avatar_url, followers')
+      .order('followers', { ascending: false })
+      .limit(4);
+      
+    if (error) throw error;
+    
+    // If we have data, transform it to match the ArtistCard component's expectations
+    if (data && data.length > 0) {
+      return data.map(profile => ({
+        id: profile.id,
+        name: profile.display_name || 'Unknown Artist',
+        image: profile.avatar_url || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2070&auto=format&fit=crop',
+        tracks: 0, // This would need to be calculated from a join or separate query
+        followers: profile.followers || 0
+      }));
+    }
+    
+    // Return fallback data if no artists found in the database
+    return [];
+  } catch (error) {
+    console.error('Error fetching artists:', error);
+    return [];
+  }
+};
 
 const FeaturedArtists = () => {
   const navigate = useNavigate();
-  const { data: artists = [], isLoading, isError } = useArtists();
+  const { data: artists = [], isLoading, isError } = useQuery({
+    queryKey: ['featured-artists'],
+    queryFn: fetchArtists
+  });
   
-  // Add default values for tracks and followers if they're missing
-  const featuredArtists = artists.slice(0, 4).map(artist => ({
-    ...artist,
-    tracks: artist.tracks || 0,
-    followers: artist.followers || 0
-  }));
+  // Use fallback data if we have no artists
+  const featuredArtists = artists.length > 0 ? artists : [
+    {
+      id: '1',
+      name: 'Luna Ray',
+      image: 'https://images.unsplash.com/photo-1549213783-8284d0336c4f?q=80&w=2070&auto=format&fit=crop',
+      tracks: 12,
+      followers: 15420
+    },
+    {
+      id: '2',
+      name: 'Atlas',
+      image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2070&auto=format&fit=crop',
+      tracks: 8,
+      followers: 9340
+    },
+    {
+      id: '3',
+      name: 'Skyline Echo',
+      image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop',
+      tracks: 16,
+      followers: 23750
+    },
+    {
+      id: '4',
+      name: 'Midnight Wave',
+      image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2070&auto=format&fit=crop',
+      tracks: 5,
+      followers: 7840
+    }
+  ];
   
   // Don't render anything if there are no artists to display
   if (featuredArtists.length === 0 && !isLoading && !isError) {
@@ -30,7 +89,7 @@ const FeaturedArtists = () => {
           
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/browse')}
+            onClick={() => navigate('/search')}
             className="group"
           >
             <span>View All</span>

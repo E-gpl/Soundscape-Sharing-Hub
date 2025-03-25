@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
+import NewReleases from '@/components/NewReleases';
+import FeaturedArtists from '@/components/FeaturedArtists';
 
 const Index = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -68,7 +70,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 className="button-gradient group shadow-lg shadow-accent1/20"
-                onClick={() => navigate('/browse')}
+                onClick={() => navigate('/search')}
               >
                 <Play className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
                 Start Listening
@@ -123,6 +125,12 @@ const Index = () => {
       
       {/* Content Sections */}
       <div className="bg-gradient-to-b from-harmonic-100 to-white dark:from-harmonic-900 dark:to-harmonic-800">
+        {/* New Releases Section */}
+        <NewReleases />
+        
+        {/* Featured Artists Section */}
+        <FeaturedArtists />
+        
         {/* Features Section */}
         <section className="py-16 relative">
           <div className="container px-4 md:px-6">
@@ -167,68 +175,6 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Enhanced Platform Features Section */}
-        <section className="py-16 relative">
-          <div className="container px-4 md:px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Powerful Platform Features</h2>
-              <p className="text-harmonic-600 dark:text-harmonic-300 max-w-2xl mx-auto">
-                Everything you need to create, share, and grow your music career
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="bg-accent1/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                    <FileMusic className="h-6 w-6 text-accent1" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">High-Quality Audio</h3>
-                  <p className="text-harmonic-500 text-sm">
-                    Upload and stream your music in high-definition audio formats up to 320kbps
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="bg-accent2/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                    <BarChart3 className="h-6 w-6 text-accent2" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Audience Insights</h3>
-                  <p className="text-harmonic-500 text-sm">
-                    Track plays, engagement, and audience demographics with detailed analytics
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="bg-blue-500/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                    <ShieldCheck className="h-6 w-6 text-blue-500" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Content Protection</h3>
-                  <p className="text-harmonic-500 text-sm">
-                    Secure your music with our copyright protection and licensing tools
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="bg-purple-500/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                    <MessageSquare className="h-6 w-6 text-purple-500" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Artist Community</h3>
-                  <p className="text-harmonic-500 text-sm">
-                    Connect with other musicians, collaborate, and share experiences
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-        
         {/* Why Music Matters Section */}
         <section className="py-16 relative">
           <div className="container px-4 md:px-6">
@@ -267,46 +213,11 @@ const Index = () => {
                   <div className="absolute -top-6 -left-6 w-64 h-64 bg-accent1/10 rounded-full filter blur-3xl animate-pulse-slow"></div>
                   <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-accent2/10 rounded-full filter blur-3xl animate-pulse-slow animation-delay-2000"></div>
                   <img 
-                    src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2070&auto=format&fit=crop" 
+                    src="/lovable-uploads/62655e0e-aa83-49b8-a0ef-7615b1fb6688.png" 
                     alt="Person listening to music" 
                     className="rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-auto"
                   />
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Stats Section */}
-        <section className="py-16 relative overflow-hidden">
-          <div className="absolute inset-0 z-0 opacity-50">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-radial from-accent1/5 to-transparent"></div>
-          </div>
-          
-          <div className="container px-4 md:px-6 relative z-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <div className="glass-card p-6 text-center">
-                <Music className="h-10 w-10 mx-auto mb-4 text-accent1" />
-                <h3 className="text-4xl font-bold">10K+</h3>
-                <p className="text-harmonic-500">Musicians</p>
-              </div>
-              
-              <div className="glass-card p-6 text-center">
-                <Headphones className="h-10 w-10 mx-auto mb-4 text-accent2" />
-                <h3 className="text-4xl font-bold">50K+</h3>
-                <p className="text-harmonic-500">Tracks</p>
-              </div>
-              
-              <div className="glass-card p-6 text-center">
-                <Users className="h-10 w-10 mx-auto mb-4 text-blue-500" />
-                <h3 className="text-4xl font-bold">1M+</h3>
-                <p className="text-harmonic-500">Listeners</p>
-              </div>
-              
-              <div className="glass-card p-6 text-center">
-                <Play className="h-10 w-10 mx-auto mb-4 text-purple-500" />
-                <h3 className="text-4xl font-bold">6M+</h3>
-                <p className="text-harmonic-500">Plays</p>
               </div>
             </div>
           </div>

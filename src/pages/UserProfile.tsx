@@ -1,337 +1,226 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-  User as UserIcon, 
-  AtSign, 
-  MapPin, 
-  Link as LinkIcon, 
-  FileText,
-  Upload,
-  Loader2,
-  Save,
-  LogOut,
-  AlertTriangle
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import { Music, Users, Clock, Calendar, LinkIcon, Edit, Loader2 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import TrackCard from '@/components/TrackCard';
 
 const UserProfile = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { user, isLoading, isAuthenticated, updateProfile, logout } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
+  const [userTracks, setUserTracks] = useState([]);
+  const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
   
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [bio, setBio] = useState('');
-  const [location, setLocation] = useState('');
-  const [website, setWebsite] = useState('');
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | undefined>(undefined);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Redirect if not authenticated
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!user) {
       navigate('/sign-in');
+      return;
     }
-  }, [isLoading, isAuthenticated, navigate]);
-  
-  // Initialize form with user data
-  useEffect(() => {
-    if (user) {
-      setName(user.name || '');
-      setUsername(user.username || '');
-      setBio(user.bio || '');
-      setLocation(user.location || '');
-      setWebsite(user.website || '');
-      setAvatarPreview(user.avatar);
-      setCoverPreview(user.cover);
-    }
-  }, [user]);
-  
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setAvatarFile(file);
-      setAvatarPreview(URL.createObjectURL(file));
-    }
-  };
-  
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setCoverFile(file);
-      setCoverPreview(URL.createObjectURL(file));
-    }
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSaving(true);
     
-    try {
-      const updates: any = {
-        name,
-        username,
-        bio,
-        location,
-        website
-      };
-      
-      // Upload avatar if changed
-      if (avatarFile) {
-        const avatarName = `${Date.now()}_${avatarFile.name}`;
-        const { data: avatarData, error: avatarError } = await supabase.storage
+    const fetchProfileAndTracks = async () => {
+      setLoading(true);
+      try {
+        // Fetch profile data
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .upload(`avatars/${user?.id}/${avatarName}`, avatarFile);
-        
-        if (avatarError) {
-          throw new Error(`Error uploading avatar: ${avatarError.message}`);
+          .select('*')
+          .eq('id', user.id)
+          .single();
+          
+        if (profileError && profileError.code !== 'PGRST116') {
+          throw profileError;
         }
         
-        const { data: avatarUrl } = supabase.storage
-          .from('profiles')
-          .getPublicUrl(`avatars/${user?.id}/${avatarName}`);
-        
-        updates.avatar = avatarUrl.publicUrl;
-      }
-      
-      // Upload cover if changed
-      if (coverFile) {
-        const coverName = `${Date.now()}_${coverFile.name}`;
-        const { data: coverData, error: coverError } = await supabase.storage
-          .from('profiles')
-          .upload(`covers/${user?.id}/${coverName}`, coverFile);
-        
-        if (coverError) {
-          throw new Error(`Error uploading cover: ${coverError.message}`);
+        // Fetch user's tracks
+        const { data: tracksData, error: tracksError } = await supabase
+          .from('tracks')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+          
+        if (tracksError) {
+          throw tracksError;
         }
         
-        const { data: coverUrl } = supabase.storage
-          .from('profiles')
-          .getPublicUrl(`covers/${user?.id}/${coverName}`);
+        // Format tracks data
+        const formattedTracks = tracksData?.map(track => ({
+          id: track.id,
+          title: track.title || 'Untitled',
+          artist: profileData?.display_name || user.email?.split('@')[0] || 'You',
+          artistId: user.id,
+          cover: track.cover_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop',
+          duration: track.duration || 180,
+          playCount: track.play_count || 0
+        })) || [];
         
-        updates.cover = coverUrl.publicUrl;
+        setProfile(profileData || { id: user.id });
+        setUserTracks(formattedTracks);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
-      
-      const success = await updateProfile(updates);
-      
-      if (success) {
-        toast.success('Profile updated successfully!');
-      } else {
-        toast.error('Failed to update profile');
-      }
-    } catch (error: any) {
-      console.error('Profile update error:', error);
-      setError(error.message || 'Failed to update profile');
-      toast.error(`Failed to update profile: ${error.message}`);
-    } finally {
-      setSaving(false);
-    }
+    };
+    
+    fetchProfileAndTracks();
+  }, [user, navigate]);
+  
+  const handlePlay = (trackId: string) => {
+    setPlayingTrackId(trackId);
   };
   
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
+  const handlePause = () => {
+    setPlayingTrackId(null);
   };
   
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-harmonic-500" />
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
       </div>
     );
   }
   
+  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'User';
+  const joinedDate = user?.created_at ? formatDistanceToNow(new Date(user.email_confirmed_at || user.created_at), { addSuffix: true }) : 'Recently';
+  
   return (
-    <div className="min-h-screen bg-harmonic-100 dark:bg-harmonic-900">
-      {/* Cover Image Section */}
-      <div className="relative h-48 md:h-64 bg-gradient-to-r from-harmonic-400 to-accent2 overflow-hidden">
-        {coverPreview ? (
-          <img 
-            src={coverPreview} 
-            alt="Cover" 
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-r from-harmonic-400 to-accent2" />
-        )}
-        <label className="absolute bottom-4 right-4 cursor-pointer">
-          <div className="bg-harmonic-800/50 backdrop-blur-sm text-white p-2 rounded-full hover:bg-harmonic-800/70 transition-colors">
-            <Upload className="h-5 w-5" />
-          </div>
-          <input 
-            type="file" 
-            className="hidden" 
-            accept="image/*"
-            onChange={handleCoverChange}
-          />
-        </label>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Header />
       
-      <div className="max-w-4xl mx-auto px-4 -mt-20 relative z-10 pb-12">
-        <div className="bg-white dark:bg-harmonic-800 rounded-xl shadow-sm border border-harmonic-200 dark:border-harmonic-700 p-6 md:p-8">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Avatar */}
-            <div className="flex-shrink-0">
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full overflow-hidden bg-harmonic-200 dark:bg-harmonic-700 border-4 border-white dark:border-harmonic-800">
-                  {avatarPreview ? (
-                    <img 
-                      src={avatarPreview} 
-                      alt="Avatar" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-harmonic-300 dark:bg-harmonic-600">
-                      <UserIcon className="h-12 w-12 text-harmonic-600 dark:text-harmonic-300" />
-                    </div>
-                  )}
-                </div>
-                <label className="absolute bottom-0 right-0 cursor-pointer">
-                  <div className="bg-accent2 text-white p-2 rounded-full hover:bg-accent2/90 transition-colors">
-                    <Upload className="h-4 w-4" />
-                  </div>
-                  <input 
-                    type="file" 
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                  />
-                </label>
-              </div>
+      <main className="flex-1 pt-24 pb-32">
+        <div className="container px-4 md:px-6 animate-fade-in">
+          {/* Profile Header */}
+          <div className="relative mb-12">
+            <div className="h-40 bg-gradient-to-r from-accent1/30 to-accent2/30 rounded-lg"></div>
+            <div className="absolute -bottom-16 left-8 flex items-end">
+              <Avatar className="h-28 w-28 border-4 border-background">
+                <AvatarImage src={profile?.avatar_url} alt={displayName} />
+                <AvatarFallback className="text-3xl">{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
             </div>
-            
-            {/* Form */}
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold mb-6">Edit Your Profile</h1>
-              
-              {error && (
-                <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-red-700 dark:text-red-400 text-sm flex items-start">
-                  <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
-                  <p>{error}</p>
-                </div>
-              )}
-              
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <div className="relative">
-                    <UserIcon className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Your full name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <div className="relative">
-                    <AtSign className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
-                    <Input
-                      id="username"
-                      type="text"
-                      placeholder="your_username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <div className="relative">
-                    <FileText className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
-                    <Textarea
-                      id="bio"
-                      placeholder="Tell us a bit about yourself"
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                      className="pl-10 min-h-[100px]"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
-                    <Input
-                      id="location"
-                      type="text"
-                      placeholder="City, Country"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="website">Website</Label>
-                  <div className="relative">
-                    <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-harmonic-500" />
-                    <Input
-                      id="website"
-                      type="url"
-                      placeholder="https://yourwebsite.com"
-                      value={website}
-                      onChange={(e) => setWebsite(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                  <Button 
-                    type="submit" 
-                    className="button-gradient"
-                    disabled={saving}
-                  >
-                    {saving ? (
-                      <span className="flex items-center justify-center">
-                        <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                        Saving...
-                      </span>
-                    ) : (
-                      <span className="flex items-center justify-center">
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Changes
-                      </span>
-                    )}
-                  </Button>
-                  
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </Button>
-                </div>
-              </form>
+            <div className="absolute bottom-4 right-4">
+              <Button variant="outline" size="sm" onClick={() => navigate('/settings')}>
+                <Edit className="h-4 w-4 mr-1" />
+                Edit Profile
+              </Button>
             </div>
           </div>
+          
+          {/* Profile Info */}
+          <div className="mt-16 pl-8 mb-8">
+            <h1 className="text-3xl font-bold">{displayName}</h1>
+            <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <Music className="h-4 w-4 mr-1" />
+                <span>{userTracks.length} {userTracks.length === 1 ? 'Track' : 'Tracks'}</span>
+              </div>
+              <div className="flex items-center">
+                <Users className="h-4 w-4 mr-1" />
+                <span>{profile?.followers || 0} {profile?.followers === 1 ? 'Follower' : 'Followers'}</span>
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-1" />
+                <span>Joined {joinedDate}</span>
+              </div>
+              {profile?.website && (
+                <a 
+                  href={profile.website.startsWith('http') ? profile.website : `https://${profile.website}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center hover:text-foreground transition-colors"
+                >
+                  <LinkIcon className="h-4 w-4 mr-1" />
+                  <span>Website</span>
+                </a>
+              )}
+            </div>
+            {profile?.bio && (
+              <p className="mt-4 max-w-3xl text-muted-foreground">{profile.bio}</p>
+            )}
+          </div>
+          
+          {/* Tabs Content */}
+          <Tabs defaultValue="tracks" className="mt-12">
+            <TabsList className="mb-8">
+              <TabsTrigger value="tracks">Tracks</TabsTrigger>
+              <TabsTrigger value="liked">Liked</TabsTrigger>
+              <TabsTrigger value="playlists">Playlists</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="tracks" className="space-y-8">
+              {userTracks.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {userTracks.map(track => (
+                    <TrackCard 
+                      key={track.id} 
+                      track={track}
+                      isCurrentlyPlaying={playingTrackId === track.id}
+                      onPlay={() => handlePlay(track.id)}
+                      onPause={handlePause}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <Card className="bg-muted/50">
+                  <CardContent className="py-10 text-center">
+                    <Music className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-xl font-semibold mb-2">No tracks yet</h3>
+                    <p className="text-muted-foreground mb-6">
+                      You haven't uploaded any music yet. Start sharing your sound with the world!
+                    </p>
+                    <Button onClick={() => navigate('/upload')}>
+                      Upload Music
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="liked">
+              <Card className="bg-muted/50">
+                <CardContent className="py-10 text-center">
+                  <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-xl font-semibold mb-2">No liked tracks</h3>
+                  <p className="text-muted-foreground mb-6">
+                    You haven't liked any tracks yet. Explore music to find tracks you enjoy!
+                  </p>
+                  <Button onClick={() => navigate('/search')}>
+                    Browse Music
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="playlists">
+              <Card className="bg-muted/50">
+                <CardContent className="py-10 text-center">
+                  <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-xl font-semibold mb-2">No playlists yet</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Create playlists to organize your favorite tracks
+                  </p>
+                  <Button onClick={() => navigate('/search')}>
+                    Create Playlist
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

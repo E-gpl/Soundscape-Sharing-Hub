@@ -11,5 +11,12 @@ allow_list = ["http://localhost:3000/*", "http://localhost:5173/*", "https://zns
 site_url = "http://localhost:5173"
 redirect_url = "http://localhost:5173"
 
+[auth]
+disable_signup = false
+
 [storage]
 profiles = { public = true }
+avatars = { public = true }
+music = { public = true }
+covers = { public = true }
+

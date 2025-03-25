@@ -10,67 +10,91 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Settings, LogOut, Music, Upload } from 'lucide-react';
+import { User, Settings, Upload, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+import { useEffect, useState } from 'react';
 
-const UserMenu = () => {
-  const { user, logout } = useAuth();
+interface UserMenuProps {
+  onLogout: () => Promise<void>;
+}
+
+const UserMenu: React.FC<UserMenuProps> = ({ onLogout }) => {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
   
-  if (!user) {
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('id', user.id)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching profile:', error);
+            return;
+          }
+          
+          setProfile(data);
+        } catch (err) {
+          console.error('Failed to fetch profile:', err);
+        }
+      };
+      
+      fetchProfile();
+    }
+  }, [user]);
   
-  const initials = user.name
-    ? user.name
-        .split(' ')
-        .map(n => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : 'U';
+  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'User';
+  const avatarUrl = profile?.avatar_url || '';
+  const initials = displayName.substring(0, 2).toUpperCase();
   
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="focus:outline-none">
-          <Avatar className="h-8 w-8 border border-harmonic-200 dark:border-harmonic-700 cursor-pointer hover:opacity-80 transition-opacity">
-            {user.avatar ? (
-              <AvatarImage src={user.avatar} alt={user.name || 'User'} />
-            ) : null}
-            <AvatarFallback className="bg-accent2 text-white text-sm">
-              {initials}
-            </AvatarFallback>
+        <button className="flex items-center gap-2 outline-none">
+          <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+            <AvatarImage src={avatarUrl} alt={displayName} />
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col">
-            <span className="font-medium">{user.name}</span>
-            <span className="text-xs text-harmonic-500">@{user.username}</span>
+            <span className="font-medium">{displayName}</span>
+            <span className="text-xs text-muted-foreground truncate">
+              {user?.email}
+            </span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link to="/profile" className="cursor-pointer">
+        <Link to="/profile">
+          <DropdownMenuItem className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/upload" className="cursor-pointer">
+          </DropdownMenuItem>
+        </Link>
+        <Link to="/upload">
+          <DropdownMenuItem className="cursor-pointer">
             <Upload className="mr-2 h-4 w-4" />
             <span>Upload Music</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/settings" className="cursor-pointer">
+          </DropdownMenuItem>
+        </Link>
+        <Link to="/settings">
+          <DropdownMenuItem className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
-          </Link>
-        </DropdownMenuItem>
+          </DropdownMenuItem>
+        </Link>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout} className="cursor-pointer">
+        <DropdownMenuItem 
+          className="cursor-pointer text-destructive focus:text-destructive"
+          onClick={onLogout}
+        >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Logout</span>
         </DropdownMenuItem>
