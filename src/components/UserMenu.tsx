@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Settings, Upload, LogOut } from 'lucide-react';
+import { User, Settings, Upload, LogOut, Music, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
@@ -82,8 +82,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ onLogout }) => {
         </Link>
         <Link to="/upload">
           <DropdownMenuItem className="cursor-pointer">
-            <Upload className="mr-2 h-4 w-4" />
+            <Music className="mr-2 h-4 w-4" />
             <span>Upload Music</span>
+          </DropdownMenuItem>
+        </Link>
+        <Link to="/feedback">
+          <DropdownMenuItem className="cursor-pointer">
+            <MessageSquare className="mr-2 h-4 w-4" />
+            <span>Feedback</span>
           </DropdownMenuItem>
         </Link>
         <Link to="/settings">

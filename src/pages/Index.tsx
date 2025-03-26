@@ -1,12 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart, Globe, Zap, FileMusic, BarChart3, Shield, ShieldCheck, MessageSquare } from 'lucide-react';
+import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart, Globe, Zap, FileMusic, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from '@/components/ui/image';
+import { getRandomMusicImage } from '@/lib/image-helper';
 
 const Index = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -26,6 +28,10 @@ const Index = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [scrolled]);
 
+  // Get a few random music images
+  const heroImage = getRandomMusicImage();
+  const sectionImage = getRandomMusicImage();
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -61,7 +67,7 @@ const Index = () => {
                 className="button-gradient group shadow-lg shadow-accent1/20"
                 onClick={() => navigate('/upload')}
               >
-                <Mic2 className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
+                <Upload className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
                 Upload Music
               </Button>
             ) : (
@@ -205,8 +211,8 @@ const Index = () => {
                   <div className="absolute -top-6 -left-6 w-64 h-64 bg-accent1/10 rounded-full filter blur-3xl animate-pulse-slow"></div>
                   <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-accent2/10 rounded-full filter blur-3xl animate-pulse-slow animation-delay-2000"></div>
                   <Image 
-                    src="/lovable-uploads/caa5c93b-2dd0-427d-a20a-44dcec81d73d.png" 
-                    alt="Person listening to music" 
+                    src={sectionImage}
+                    alt="Person enjoying music" 
                     className="rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-auto"
                     fallbackSrc="/placeholder.svg"
                     aspectRatio="16:9"
@@ -233,13 +239,24 @@ const Index = () => {
                 Start uploading your music and connect with listeners around the world today.
               </p>
               
-              <Button 
-                size="lg" 
-                className="button-gradient shadow-lg shadow-accent1/20"
-                onClick={() => navigate('/sign-up')}
-              >
-                Create Account
-              </Button>
+              {isAuthenticated ? (
+                <Button 
+                  size="lg" 
+                  className="button-gradient shadow-lg shadow-accent1/20"
+                  onClick={() => navigate('/upload')}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Music
+                </Button>
+              ) : (
+                <Button 
+                  size="lg" 
+                  className="button-gradient shadow-lg shadow-accent1/20"
+                  onClick={() => navigate('/sign-up')}
+                >
+                  Create Account
+                </Button>
+              )}
             </div>
           </div>
         </section>
@@ -266,6 +283,9 @@ const Index = () => {
                 <a href="/contact" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
                   Contact
                 </a>
+                <a href="/feedback" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
+                  Feedback
+                </a>
               </div>
             </div>
           </div>
@@ -276,4 +296,3 @@ const Index = () => {
 };
 
 export default Index;
-

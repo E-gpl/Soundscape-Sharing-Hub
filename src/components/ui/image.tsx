@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { handleImageError } from '@/lib/image-helper';
+import { handleImageError, getImageUrl } from '@/lib/image-helper';
 
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
@@ -25,6 +25,9 @@ const Image: React.FC<ImageProps> = ({
     '1:1': 'aspect-square'
   };
   
+  // Process the source URL to handle different formats
+  const processedSrc = getImageUrl(src, fallbackSrc);
+  
   return (
     <div className={`relative overflow-hidden ${aspectRatioClasses[aspectRatio]}`}>
       {!loaded && (
@@ -40,7 +43,7 @@ const Image: React.FC<ImageProps> = ({
         </div>
       )}
       <img
-        src={src || fallbackSrc}
+        src={processedSrc}
         alt={alt || 'Image'}
         onLoad={() => setLoaded(true)}
         onError={(e) => {

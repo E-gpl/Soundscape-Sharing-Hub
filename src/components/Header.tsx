@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from './ThemeToggle';
-import { Menu, Home, Search, Upload, Settings, LogOut } from 'lucide-react';
+import { Menu, Home, Search, Upload, Settings, LogOut, Music } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import SearchBar from './SearchBar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -199,7 +199,18 @@ const Header = () => {
           {!isLoading && (
             <>
               {isAuthenticated ? (
-                <UserMenu onLogout={handleLogout} />
+                <>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="button-gradient hidden md:flex"
+                    onClick={() => navigate('/upload')}
+                  >
+                    <Music className="mr-2 h-4 w-4" />
+                    Upload Music
+                  </Button>
+                  <UserMenu onLogout={handleLogout} />
+                </>
               ) : (
                 <>
                   <Link to="/sign-in">

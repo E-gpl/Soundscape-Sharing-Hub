@@ -24,6 +24,7 @@ import Documentation from './pages/Documentation';
 import UploadGuides from './pages/UploadGuides';
 import AccountHelp from './pages/AccountHelp';
 import SupportTicket from './pages/SupportTicket';
+import Feedback from './pages/Feedback';
 
 // Import type definitions
 import './types/auth.d.ts';
@@ -55,6 +56,7 @@ function App() {
               <Route path="/upload-guides" element={<UploadGuides />} />
               <Route path="/account-help" element={<AccountHelp />} />
               <Route path="/support-ticket" element={<SupportTicket />} />
+              <Route path="/feedback" element={<Feedback />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
