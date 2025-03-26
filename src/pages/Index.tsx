@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart, Globe, Zap, FileMusic, Upload } from 'lucide-react';
+import { Play, ArrowRight, Music, Headphones, Users, Sparkles, Mic2, Info, Heart, Globe, Zap, FileMusic, Upload, HelpCircle, Mail, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from '@/components/ui/image';
-import { getRandomMusicImage } from '@/lib/image-helper';
+import { getMusicImage, getRandomMusicImage, getRandomConcertImage, getRandomStudioImage } from '@/lib/image-helper';
 
 const Index = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -28,9 +28,10 @@ const Index = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [scrolled]);
 
-  // Get a few random music images
-  const heroImage = getRandomMusicImage();
-  const sectionImage = getRandomMusicImage();
+  // Use specific high-quality images instead of random ones
+  const heroImage = getMusicImage(0); // Use the first curated image for hero
+  const studioImage = getRandomStudioImage();
+  const concertImage = getRandomConcertImage();
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -211,11 +212,12 @@ const Index = () => {
                   <div className="absolute -top-6 -left-6 w-64 h-64 bg-accent1/10 rounded-full filter blur-3xl animate-pulse-slow"></div>
                   <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-accent2/10 rounded-full filter blur-3xl animate-pulse-slow animation-delay-2000"></div>
                   <Image 
-                    src={sectionImage}
-                    alt="Person enjoying music" 
+                    src={studioImage}
+                    alt="Professional music studio" 
                     className="rounded-2xl shadow-2xl relative z-10 w-full max-w-md mx-auto"
                     fallbackSrc="/placeholder.svg"
                     aspectRatio="16:9"
+                    priority={true}
                   />
                 </div>
               </div>
@@ -261,30 +263,158 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Footer */}
-        <footer className="py-10 border-t border-harmonic-200 dark:border-harmonic-700">
+        {/* Enhanced Footer */}
+        <footer className="py-14 border-t border-harmonic-200 dark:border-harmonic-700">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="mb-6 md:mb-0">
-                <h2 className="text-2xl font-bold heading-gradient mb-2">Harmonic</h2>
-                <p className="text-sm text-harmonic-500">© 2025 Harmonic. All rights reserved.</p>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+              <div>
+                <h3 className="text-2xl font-bold heading-gradient mb-4">Harmonic</h3>
+                <p className="text-harmonic-500 mb-4">
+                  The digital stage for independent musicians to share their work with the world.
+                </p>
+                <div className="flex space-x-4">
+                  <a href="https://twitter.com" className="text-harmonic-400 hover:text-accent1 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+                    </svg>
+                  </a>
+                  <a href="https://facebook.com" className="text-harmonic-400 hover:text-accent1 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                    </svg>
+                  </a>
+                  <a href="https://instagram.com" className="text-harmonic-400 hover:text-accent1 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                  </a>
+                  <a href="https://youtube.com" className="text-harmonic-400 hover:text-accent1 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+                      <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+                    </svg>
+                  </a>
+                </div>
               </div>
               
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Resources</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <a 
+                      href="/documentation" 
+                      className="text-harmonic-500 hover:text-foreground transition-colors flex items-center"
+                    >
+                      <FileMusic className="w-4 h-4 mr-2" />
+                      Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="/upload-guides" 
+                      className="text-harmonic-500 hover:text-foreground transition-colors flex items-center"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Guidelines
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="/account-help" 
+                      className="text-harmonic-500 hover:text-foreground transition-colors flex items-center"
+                    >
+                      <HelpCircle className="w-4 h-4 mr-2" />
+                      Account Help
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Company</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <a 
+                      href="/terms" 
+                      className="text-harmonic-500 hover:text-foreground transition-colors"
+                    >
+                      Terms of Service
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="/privacy" 
+                      className="text-harmonic-500 hover:text-foreground transition-colors"
+                    >
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="/help" 
+                      className="text-harmonic-500 hover:text-foreground transition-colors flex items-center"
+                    >
+                      <HelpCircle className="w-4 h-4 mr-2" />
+                      Help Center
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start">
+                    <Mail className="w-5 h-5 mr-2 text-accent1 mt-0.5" />
+                    <div>
+                      <span className="block text-harmonic-500">Email Us</span>
+                      <a href="mailto:lhy3453069@gmail.com" className="text-foreground hover:text-accent1">
+                        lhy3453069@gmail.com
+                      </a>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <Phone className="w-5 h-5 mr-2 text-accent2 mt-0.5" />
+                    <div>
+                      <span className="block text-harmonic-500">Call Support</span>
+                      <a href="tel:+12345678901" className="text-foreground hover:text-accent2">
+                        +1 (234) 567-8901
+                      </a>
+                    </div>
+                  </li>
+                  <li>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-2 w-full"
+                      onClick={() => navigate('/support-ticket')}
+                    >
+                      Submit Support Ticket
+                    </Button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="border-t border-harmonic-200 dark:border-harmonic-700 pt-6 flex flex-col md:flex-row justify-between items-center">
+              <p className="text-sm text-harmonic-500 mb-4 md:mb-0">© 2025 Harmonic. All rights reserved.</p>
               <div className="flex flex-wrap justify-center gap-6">
-                <a href="/terms" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
+                <a href="/terms" className="text-sm text-harmonic-500 hover:text-foreground transition-colors">
                   Terms
                 </a>
-                <a href="/privacy" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
+                <a href="/privacy" className="text-sm text-harmonic-500 hover:text-foreground transition-colors">
                   Privacy
                 </a>
-                <a href="/help" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
+                <a href="/help" className="text-sm text-harmonic-500 hover:text-foreground transition-colors">
                   Help
                 </a>
-                <a href="/contact" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
+                <a href="/contact" className="text-sm text-harmonic-500 hover:text-foreground transition-colors">
                   Contact
                 </a>
-                <a href="/feedback" className="text-harmonic-500 hover:text-harmonic-900 dark:hover:text-white transition-colors">
-                  Feedback
+                <a href="/support-ticket" className="text-sm text-harmonic-500 hover:text-foreground transition-colors">
+                  Support
                 </a>
               </div>
             </div>

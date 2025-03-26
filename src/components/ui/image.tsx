@@ -5,6 +5,8 @@ import { handleImageError, getImageUrl } from '@/lib/image-helper';
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
   aspectRatio?: 'auto' | 'square' | '16:9' | '4:3' | '1:1';
+  blur?: boolean;
+  priority?: boolean;
 }
 
 const Image: React.FC<ImageProps> = ({
@@ -13,9 +15,12 @@ const Image: React.FC<ImageProps> = ({
   className,
   fallbackSrc = '/placeholder.svg',
   aspectRatio = 'auto',
+  blur = true,
+  priority = false,
   ...props
 }) => {
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
   
   const aspectRatioClasses = {
     'auto': '',
@@ -29,8 +34,8 @@ const Image: React.FC<ImageProps> = ({
   const processedSrc = getImageUrl(src, fallbackSrc);
   
   return (
-    <div className={`relative overflow-hidden ${aspectRatioClasses[aspectRatio]}`}>
-      {!loaded && (
+    <div className={`relative overflow-hidden ${aspectRatioClasses[aspectRatio]} ${className || ''}`}>
+      {(!loaded || error) && blur && (
         <div className="absolute inset-0 flex items-center justify-center bg-harmonic-100 dark:bg-harmonic-800 animate-pulse">
           <svg className="w-8 h-8 text-harmonic-400" viewBox="0 0 24 24" fill="none">
             <path 
@@ -45,12 +50,17 @@ const Image: React.FC<ImageProps> = ({
       <img
         src={processedSrc}
         alt={alt || 'Image'}
-        onLoad={() => setLoaded(true)}
+        loading={priority ? "eager" : "lazy"}
+        onLoad={() => {
+          setLoaded(true);
+          setError(false);
+        }}
         onError={(e) => {
           handleImageError(e, fallbackSrc);
+          setError(true);
           setLoaded(true);
         }}
-        className={`w-full h-full object-cover ${!loaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300 ${className || ''}`}
+        className={`w-full h-full object-cover ${!loaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         {...props}
       />
     </div>
